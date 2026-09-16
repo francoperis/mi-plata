@@ -354,10 +354,14 @@ const CRYPTO_KEY='mi-plata-cripto-v1';
 const CRYPTO_TTL=6*60*60*1000;
 let CRYPTO_UMBRAL=25;
 
-let S={v:1,ciclo:null,historial:[],baseResumen:157000,metas:[],cryptoUmbral:25};
-try{const l=JSON.parse(localStorage.getItem(KEY)||'null');if(l&&l.v===1)S=Object.assign(S,l);}catch(e){}
-if(!Array.isArray(S.metas))S.metas=[];
-if(!S.cryptoUmbral)S.cryptoUmbral=25;
+function estado(d){
+  const s=Object.assign({v:1,ciclo:null,historial:[],baseResumen:157000,metas:[],cryptoUmbral:25},d&&d.v===1?d:null);
+  if(!Array.isArray(s.metas))s.metas=[];
+  if(!s.cryptoUmbral)s.cryptoUmbral=25;
+  return s;
+}
+let S;
+try{S=estado(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(e){S=estado();}
 CRYPTO_UMBRAL=S.cryptoUmbral;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}}
 
@@ -1118,7 +1122,7 @@ function renderHistorial(R){
   $('#b-bk').onclick=backup;$('#b-rs').onclick=()=>$('#restore').click();
   $('#b-wipe').onclick=async()=>{
     if(!await ask('¿Borrar todo?','Se borran el mes actual y todo el historial de este celular. Descargá una copia antes si la querés guardar.','Borrar todo',true))return;
-    S={v:1,ciclo:null,historial:[],baseResumen:157000};save();go('home');toast('Datos borrados');
+    S=estado();save();go('home');toast('Datos borrados');
   };
   const be=$('#b-edit');if(be)be.onclick=()=>{
     const c=S.ciclo;
@@ -1169,7 +1173,7 @@ $('#restore').onchange=async e=>{
     const d=JSON.parse(await f.text());
     if(!d||d.v!==1||!Array.isArray(d.historial))throw 0;
     if(!await ask('¿Restaurar la copia?','Se reemplazan los datos de este celular por los de la copia.','Restaurar'))return;
-    S=Object.assign({v:1,ciclo:null,historial:[],baseResumen:157000},d);save();go('home');toast('Copia restaurada');
+    S=estado(d);CRYPTO_UMBRAL=S.cryptoUmbral;save();go('home');toast('Copia restaurada');
   }catch(err){toast('Ese archivo no es una copia de Mi plata.');}
   e.target.value='';
 };
