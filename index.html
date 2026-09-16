@@ -66,9 +66,10 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .btn{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:600;background:var(--surface)}
 .back{background:none;border:0;padding:6px 0;font-weight:600;color:var(--muted)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 12px calc(8px + env(safe-area-inset-bottom));z-index:5}
-nav div{display:grid;grid-template-columns:repeat(3,1fr);max-width:460px;width:100%}
-nav button{background:none;border:0;padding:6px;font-size:.76rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600}
-nav button span{font-size:1.25rem;line-height:1.1;filter:grayscale(1);opacity:.7}
+nav div{display:grid;grid-template-columns:repeat(5,1fr);max-width:460px;width:100%}
+nav button{background:none;border:0;padding:6px 2px;font-size:.66rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;position:relative}
+nav button span{font-size:1.15rem;line-height:1.1;filter:grayscale(1);opacity:.7}
+nav button .ping{position:absolute;top:2px;right:22%;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--surface)}
 nav button[aria-current="page"]{color:var(--ink)}
 nav button[aria-current="page"] span{filter:none;opacity:1}
 nav button[aria-current="page"]:after{content:"";width:4px;height:4px;border-radius:50%;background:var(--s1);margin-top:2px}
@@ -202,6 +203,50 @@ nav button[aria-current="page"]{color:var(--ink)}
  @keyframes spin{to{transform:rotate(360deg)}}
  .ring circle.prog{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
 }
+/* ---- invertir / misiones ---- */
+.seg{display:flex;gap:6px;background:var(--surface2);border-radius:14px;padding:4px;margin-top:14px}
+.seg button{flex:1;border:0;background:none;border-radius:11px;padding:9px 4px;font-size:.82rem;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.dato-card{position:relative;margin-top:14px;border-radius:20px;padding:20px 18px;background:linear-gradient(135deg,var(--s3),var(--s3d));color:#fff;box-shadow:0 10px 26px rgba(0,0,0,.25);overflow:hidden}
+.dato-card:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 40%)}
+.dato-card>*{position:relative}
+.dato-card .tag{font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;opacity:.85;font-weight:700}
+.dato-card p{font-size:1.12rem;font-weight:700;line-height:1.35;margin:8px 0 2px}
+.dato-card .fuente{font-size:.8rem;opacity:.8;margin-top:8px}
+.disclaimer{font-size:.8rem;color:var(--muted);background:var(--surface2);border-radius:12px;padding:10px 12px;margin-top:12px;line-height:1.4}
+.alloc{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.alloc-row{border-radius:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--line)}
+.alloc-row .h{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+.alloc-row .h b{font-size:1.05rem}
+.alloc-row .d{font-size:.82rem;color:var(--muted);margin-top:3px}
+.risk{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px}
+.risk.r1{background:rgba(75,227,172,.18);color:var(--pos)}
+.risk.r2{background:rgba(255,181,36,.18);color:#C97A00}
+.risk.r3{background:var(--neg-bg);color:var(--neg)}
+.guia-item{border-radius:16px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);margin-top:10px}
+.guia-item h4{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.guia-item p{margin:0;font-size:.9rem;color:var(--muted);line-height:1.42}
+.crypto-card{border-radius:16px;padding:13px 15px;background:var(--surface);border:1px solid var(--line);margin-top:10px}
+.crypto-card .h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.crypto-card .nm{font-weight:700;display:flex;align-items:center;gap:8px}
+.crypto-card img{width:26px;height:26px;border-radius:50%}
+.crypto-card .pct{font-weight:800;color:var(--neg)}
+.crypto-card .sub{font-size:.82rem;color:var(--muted);margin-top:2px}
+.crypto-card .links{display:flex;gap:8px;margin-top:10px}
+.crypto-card .links a{flex:1;text-align:center;text-decoration:none;font-size:.82rem;font-weight:700;padding:9px 6px;border-radius:11px;background:var(--surface2);color:var(--ink)}
+.meta-card{border-radius:18px;padding:15px 16px;background:var(--surface);border:1px solid var(--line);margin-top:10px;text-align:left;width:100%}
+.meta-card .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.meta-card .h span{font-weight:700;font-size:1.02rem}
+.meta-card .done{color:var(--pos);font-weight:700}
+.meta-card .small{margin-top:2px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mbadge{font-size:.78rem;font-weight:700;padding:6px 11px;border-radius:99px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.mbadge.on{background:linear-gradient(135deg,var(--s4),var(--s4d));color:#2A1A00;border-color:transparent}
+.racha-card{border-radius:20px;padding:16px 18px;background:linear-gradient(135deg,#FF7A45,#C9501F);color:#fff;display:flex;align-items:center;gap:14px;margin-top:14px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
+.racha-card .n{font-size:2.1rem;font-weight:800;line-height:1}
+.emoji-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.emoji-pick button{font-size:1.3rem;border:1px solid var(--line);background:var(--surface2);border-radius:12px;padding:7px 10px}
+.emoji-pick button[aria-pressed="true"]{border-color:var(--s2);background:rgba(63,123,255,.15)}
 </style>
 </head>
 <body>
@@ -209,6 +254,8 @@ nav button[aria-current="page"]{color:var(--ink)}
 <nav id="nav"><div>
   <button data-go="home"><span>💵</span>Hoy</button>
   <button data-go="tarjeta"><span>💳</span>Tarjeta</button>
+  <button data-go="invertir"><span>🌱</span>Invertir<i class="ping" id="nav-ping" hidden></i></button>
+  <button data-go="misiones"><span>🎯</span>Misiones</button>
   <button data-go="historial"><span>📈</span>Progreso</button>
 </div></nav>
 <div class="toast" id="toast" role="status"></div>
@@ -225,8 +272,62 @@ const PCT=[.15,.20,.25,.40];
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
-let S={v:1,ciclo:null,historial:[],baseResumen:157000};
+/* ---------- Datos motivadores (frases reales + cálculos simples) ---------- */
+const DATOS=[
+ {t:'Frase',x:'No ahorres lo que te queda después de gastar; gastá lo que te queda después de ahorrar.',f:'Warren Buffett'},
+ {t:'Frase',x:'El tiempo es amigo de las empresas maravillosas y enemigo de las mediocres.',f:'Warren Buffett'},
+ {t:'Frase',x:'El riesgo viene de no saber lo que estás haciendo.',f:'Warren Buffett'},
+ {t:'Frase',x:'Sé temeroso cuando otros son codiciosos, y codicioso cuando otros son temerosos.',f:'Warren Buffett'},
+ {t:'Frase',x:'La razón más tonta del mundo para comprar una acción es porque está subiendo.',f:'Warren Buffett'},
+ {t:'Frase',x:'Es mucho mejor comprar una compañía maravillosa a un precio justo que una compañía justa a un precio maravilloso.',f:'Warren Buffett'},
+ {t:'Frase',x:'Las oportunidades aparecen pocas veces. Cuando llueva oro, salí con un balde grande, no con un dedal.',f:'Warren Buffett'},
+ {t:'Frase',x:'No busques la aguja en el pajar. Comprá el pajar entero.',f:'John C. Bogle, fundador de Vanguard'},
+ {t:'Frase',x:'Un centavo ahorrado es un centavo ganado.',f:'Frase atribuida a Benjamin Franklin'},
+ {t:'Dato',x:'Si ahorrás $2.000 por día, en un año juntás $730.000.',f:'Cálculo simple: 2.000 × 365'},
+ {t:'Dato',x:'Si ahorrás $5.000 por día, en un año juntás $1.825.000.',f:'Cálculo simple: 5.000 × 365'},
+ {t:'Dato',x:'Si ahorrás $10.000 por semana, en un año juntás $520.000, sin contar ningún interés.',f:'Cálculo simple: 10.000 × 52'},
+ {t:'Dato',x:'Guardar el 10% de lo que entra, antes de gastar el resto, es una de las reglas de ahorro más viejas y más usadas.',f:'Regla general de finanzas personales'},
+ {t:'Dato',x:'La Regla del 72: dividí 72 por una tasa de interés anual y el resultado son, aproximadamente, los años que tarda esa plata en duplicarse a esa tasa.',f:'Regla general de matemática financiera'},
+ {t:'Dato',x:'Armar un colchón de algunos meses de gastos, antes de invertir en cualquier otra cosa, es de las primeras recomendaciones de la mayoría de los planificadores financieros.',f:'Principio general de finanzas personales'},
+ {t:'Dato',x:'Diversificar no elimina el riesgo, pero evita que un solo golpe te deje sin nada: por eso conviene repartir los ahorros en distintas canastas y no poner todo en una sola.',f:'Principio general de finanzas personales'},
+ {t:'Dato',x:'Invertir un poco todos los meses, en vez de esperar "el momento perfecto", se llama promediar en el tiempo, y evita depender de acertar el momento justo.',f:'Principio general de inversión'},
+ {t:'Dato',x:'Pagar antes una deuda con interés alto (como la tarjeta) suele convenir más que empezar a invertir, porque ese interés casi siempre es más alto que lo que se puede ganar con bajo riesgo.',f:'Principio general de finanzas personales'},
+ {t:'Dato',x:'Si ahorrás $50.000 por mes durante 3 años, sin contar ningún interés, ya juntaste $1.800.000.',f:'Cálculo simple: 50.000 × 36'},
+];
+let datoIdx=Math.floor(Math.random()*DATOS.length);
+function otroDato(){let n;do{n=Math.floor(Math.random()*DATOS.length);}while(n===datoIdx&&DATOS.length>1);datoIdx=n;return DATOS[n];}
+
+/* ---------- Guía de activos (educativa, general) ---------- */
+const GUIA=[
+ {nm:'Plazo fijo',r:1,tx:'Le prestás tu plata a un banco por un plazo fijo (tradicionalmente 30 días) a cambio de un interés pactado de antemano. Simple y conocido, pero en pesos: si la inflación le gana a la tasa, igual perdés poder de compra.'},
+ {nm:'FCI money market',r:1,tx:'Juntás tu plata con la de muchas personas y un equipo profesional la invierte en instrumentos de corto plazo. Podés entrar y salir cuando quieras, y suele rendir más que dejarla parada.'},
+ {nm:'Cauciones',r:1,tx:'Un préstamo de muy corto plazo (días) que le hacés al mercado a través de un bróker, con una tasa pactada. Se usa para no dejar pesos parados entre una operación y otra.'},
+ {nm:'Dólar (ahorro / MEP)',r:2,tx:'Comprar dólares resguarda el valor de tus pesos, pero no genera una renta por sí solo. El dólar MEP se opera con una cuenta comitente/bróker; el dólar ahorro depende del cupo y las condiciones vigentes.'},
+ {nm:'Bonos',r:2,tx:'Le prestás dinero a un estado o una empresa, que te lo devuelve con un interés en fechas pactadas. El riesgo depende de quién te debe: no es lo mismo un emisor sólido que uno con historial de no pagar.'},
+ {nm:'CEDEARs',r:2,tx:'Certificados que representan acciones o fondos que cotizan en el exterior (como el S&P 500), pero se compran y venden en pesos en el mercado local. Dan exposición a otras economías y al dólar.'},
+ {nm:'Acciones',r:3,tx:'Comprás una porción de una empresa. Podés ganar si a la empresa le va bien, pero también perder si le va mal. El precio puede moverse fuerte en poco tiempo.'},
+ {nm:'Criptomonedas',r:3,tx:'Activos digitales que no dependen de un banco central. El precio puede moverse muy fuerte en días u horas, en cualquier dirección. Por eso suele recomendarse destinarles solo una porción chica de los ahorros.'},
+];
+const RNAME=['','Riesgo bajo','Riesgo medio','Riesgo alto'];
+
+/* ---------- Reparto sugerido (educativo, siempre fraccionado) ---------- */
+const ALLOC=[
+ {pct:.40,nm:'Colchón de emergencia',r:1,tx:'Si todavía no tenés ahorrado el equivalente a varios meses de gastos, esto va primero. Que sea lo más líquido y seguro posible.'},
+ {pct:.30,nm:'Corto plazo, bajo riesgo',r:1,tx:'Plazo fijo, FCI money market o cauciones. Para lo que podés llegar a necesitar en los próximos meses.'},
+ {pct:.20,nm:'Mediano plazo',r:2,tx:'CEDEARs diversificados, bonos o dólar. Pensado para objetivos de uno o más años.'},
+ {pct:.10,nm:'Mayor riesgo, largo plazo',r:3,tx:'Cripto o acciones puntuales. Nunca más de esta porción, y de a poco: comprando en varias veces, no todo junto.'},
+];
+
+/* ---------- Alertas de criptomonedas (CoinGecko, sin backend) ---------- */
+const CRYPTO_KEY='mi-plata-cripto-v1';
+const CRYPTO_TTL=6*60*60*1000;
+let CRYPTO_UMBRAL=25;
+
+let S={v:1,ciclo:null,historial:[],baseResumen:157000,metas:[],cryptoUmbral:25};
 try{const l=JSON.parse(localStorage.getItem(KEY)||'null');if(l&&l.v===1)S=Object.assign(S,l);}catch(e){}
+if(!Array.isArray(S.metas))S.metas=[];
+if(!S.cryptoUmbral)S.cryptoUmbral=25;
+CRYPTO_UMBRAL=S.cryptoUmbral;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}}
 
 const $=s=>document.querySelector(s);
@@ -334,12 +435,12 @@ function render(){
   renderInner();postRender();
 }
 function renderInner(){
-  const nav={home:'home',sobre:'home',tarjeta:'tarjeta',historial:'historial',cierre:'historial',cobre:'historial'}[view];
+  const nav={home:'home',sobre:'home',tarjeta:'tarjeta',historial:'historial',cierre:'historial',cobre:'historial',invertir:'invertir',misiones:'misiones',meta:'misiones'}[view];
   document.querySelectorAll('[data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===nav?'page':'false'));
   const R=$('#root');
   if(view==='cobre')return renderCobre(R);
   if(!S.ciclo&&(view==='home'||view==='sobre'))return renderBienvenida(R);
-  ({home:renderHome,sobre:renderSobre,tarjeta:renderTarjeta,historial:renderHistorial,cierre:renderCierreGuardado}[view]||renderHome)(R);
+  ({home:renderHome,sobre:renderSobre,tarjeta:renderTarjeta,historial:renderHistorial,cierre:renderCierreGuardado,invertir:renderInvertir,misiones:renderMisiones,meta:renderMetaDetalle}[view]||renderHome)(R);
 }
 
 function renderBienvenida(R){
@@ -397,6 +498,7 @@ function renderHome(R){
     </div>
   </div>
   <div class="note">Tocá un sobre para abrirlo</div>
+  ${cryptoHintHtml()}
   ${extra}
   ${r.despues?`<button class="bigbtn" id="b-cobre">Cobré, cerrar el mes</button>`:`<button class="bigbtn" id="b-gaste">Gasté plata</button>`}
   ${(()=>{const hg=c.gastos.filter(g=>g.f===iso(t)).slice().reverse();return hg.length?`<h3>Gastos de hoy</h3><div class="card"><ul class="list">${hg.map(g=>`<li><button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${g.medio==='tarjeta'?'💳 '+TIPOS.find(x=>x[0]===g.tipo)[1]:g.imp?'⚠️ Imprevisto'+(g.nota?', '+esc(g.nota):''):esc(CATNAME[g.cat]||'Gasto')}</div></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul></div>`:'';})()}`;
@@ -405,6 +507,7 @@ function renderHome(R){
   $('#m-alc').onclick=()=>go('historial');$('#m-tj').onclick=()=>go('tarjeta');
   const cb=$('#b-cobre');if(cb)cb.onclick=()=>go('cobre');
   const bl=$('#b-luz');if(bl)bl.onclick=()=>abrirGasto('luz');
+  const bch=$('#b-crypto-hint');if(bch)bch.onclick=()=>{invSub='alertas';go('invertir');};
   bindDelete();
   introHecho=true;
 }
@@ -506,6 +609,221 @@ function abrirGasto(pre,editId){
     toast(medio==='tarjeta'&&tipo==='luz'?'Luz cargada. Listo por este mes.':'Anotado');
   };
   paint();if(!ed)setTimeout(()=>{const x=$('#g-m');if(x)x.focus();},80);
+}
+
+/* ---------- Invertir ---------- */
+let invSub='sugerencia';
+function montoDisponibleParaInvertir(){
+  const totalHist=S.historial.reduce((a,m)=>a+Math.max(0,m.ahorro),0);
+  const actual=S.ciclo?sim(S.ciclo).alcancia:0;
+  const enMetas=S.metas.reduce((a,m)=>a+m.aportes.reduce((x,ap)=>x+ap.m,0),0);
+  return Math.max(0,totalHist+actual-enMetas);
+}
+function cryptoAlertas(cache){
+  if(!cache||!cache.coins)return[];
+  return cache.coins.filter(c=>{
+    const d14=c.price_change_percentage_14d_in_currency,d30=c.price_change_percentage_30d_in_currency;
+    return (d14!=null&&d14<=-CRYPTO_UMBRAL)||(d30!=null&&d30<=-CRYPTO_UMBRAL);
+  });
+}
+function cryptoHintHtml(){
+  const bajaron=cryptoAlertas(leerCacheCripto());
+  if(!bajaron.length)return'';
+  return `<button class="hint" style="border-left-color:var(--neg);display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;text-align:left" id="b-crypto-hint"><span>📉 ${bajaron.length} cripto${bajaron.length>1?'s':''} bajaron fuerte. Ver oportunidades</span><span>›</span></button>`;
+}
+function renderInvertir(R){
+  const dato=DATOS[datoIdx],disponible=montoDisponibleParaInvertir();
+  R.innerHTML=`
+  <div class="top"><h1>Invertir</h1></div>
+  <div class="small">${largo(hoyD())}</div>
+  <div class="dato-card"><div class="tag">${dato.t==='Frase'?'💬 Frase':'💡 Dato'}</div><p>"${esc(dato.x)}"</p><div class="fuente">— ${esc(dato.f)}</div></div>
+  <button class="btn" id="b-otro-dato">Otro dato</button>
+  <div class="seg" id="inv-seg">
+    <button data-v="sugerencia" aria-pressed="${invSub==='sugerencia'}">Sugerencia</button>
+    <button data-v="guia" aria-pressed="${invSub==='guia'}">Guía</button>
+    <button data-v="alertas" aria-pressed="${invSub==='alertas'}">Alertas</button>
+  </div>
+  <div id="inv-body"></div>`;
+  $('#b-otro-dato').onclick=()=>{otroDato();render();};
+  document.querySelectorAll('#inv-seg button').forEach(b=>b.onclick=()=>{invSub=b.dataset.v;render();});
+  const el=$('#inv-body');
+  if(invSub==='sugerencia')renderSugerencia(el,disponible);
+  else if(invSub==='guia')renderGuia(el);
+  else renderAlertasCripto(el);
+}
+function renderSugerencia(el,disponible){
+  el.innerHTML=`
+  <h3 style="margin-top:14px">Con lo que llevás ahorrado</h3>
+  <p class="small" style="margin-top:0">Alcancía + meses cerrados, menos lo que ya destinaste a tus misiones: <b>${fmt(disponible)}</b></p>
+  ${disponible<=0?`<div class="empty card">Todavía no tenés un excedente para repartir. Cuando cierres meses con ahorro, vas a ver acá una sugerencia.</div>`:
+  `<div class="alloc">${ALLOC.map(a=>`<div class="alloc-row"><div class="h"><span>${esc(a.nm)}<span class="risk r${a.r}">${RNAME[a.r]}</span></span><b>${fmt(disponible*a.pct)}</b></div><div class="d">${Math.round(a.pct*100)}% · ${esc(a.tx)}</div></div>`).join('')}</div>`}
+  <div class="disclaimer">Guía educativa hecha con reglas simples: nunca todo en una sola cosa, y lo más seguro primero. No es una recomendación de inversión personalizada ni te la da un asesor matriculado. Antes de invertir, informate en varias fuentes o consultá a un profesional.</div>`;
+}
+function renderGuia(el){
+  el.innerHTML=`<p class="small" style="margin-top:14px">Tipos de activos más comunes para generar valor con tus ahorros, de menor a mayor riesgo típico.</p>
+  ${GUIA.map(g=>`<div class="guia-item"><h4>${esc(g.nm)}<span class="risk r${g.r}">${RNAME[g.r]}</span></h4><p>${esc(g.tx)}</p></div>`).join('')}
+  <div class="disclaimer">Contenido educativo general, no es asesoramiento financiero. Los instrumentos, tasas y condiciones cambian con el tiempo: antes de operar, confirmá los datos actualizados con tu banco, bróker o billetera.</div>`;
+}
+function leerCacheCripto(){try{return JSON.parse(localStorage.getItem(CRYPTO_KEY)||'null');}catch(e){return null;}}
+function guardarCacheCripto(c){try{localStorage.setItem(CRYPTO_KEY,JSON.stringify(c));}catch(e){}}
+function renderAlertasCripto(el){
+  el.innerHTML=`<p class="small" style="margin-top:14px">Monedas que bajaron fuerte en las últimas semanas. Te mostramos el dato y accesos a noticias: la decisión es tuya.</p>
+  <label class="f">Avisame si baja más de</label>
+  <div class="chips" id="cr-chip">${[15,20,25,30,40].map(v=>`<button class="chip" data-v="${v}" aria-pressed="${CRYPTO_UMBRAL===v}">${v}%</button>`).join('')}</div>
+  <button class="btn" id="cr-refresh">Actualizar cotizaciones</button>
+  <div id="cr-list"></div>
+  <div class="disclaimer">Esto no es una recomendación de compra ni de venta. Una baja fuerte puede ser una oportunidad o el comienzo de algo peor: la única forma de saberlo es leer varias fuentes antes de decidir. Precios de CoinGecko, pueden tener demora.</div>`;
+  document.querySelectorAll('#cr-chip .chip').forEach(b=>b.onclick=()=>{
+    CRYPTO_UMBRAL=Number(b.dataset.v);S.cryptoUmbral=CRYPTO_UMBRAL;save();
+    document.querySelectorAll('#cr-chip .chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    pintarListaCripto();
+  });
+  $('#cr-refresh').onclick=()=>actualizarCripto(true);
+  pintarListaCripto();
+}
+function pintarListaCripto(){
+  const box=$('#cr-list');if(!box)return;
+  const cache=leerCacheCripto();
+  if(!cache){box.innerHTML=`<div class="empty">Todavía no consultamos cotizaciones. Tocá "Actualizar cotizaciones".</div>`;return;}
+  if(cache.buscando){box.innerHTML=`<div class="empty">Buscando…</div>`;return;}
+  if(!cache.coins){box.innerHTML=`<div class="warn">No pudimos consultar cotizaciones ahora${cache.error?' ('+esc(cache.error)+')':''}. Podés mirar directamente en <a href="https://www.coingecko.com/es" target="_blank" rel="noopener">CoinGecko</a> y probar de nuevo más tarde.</div>`;return;}
+  const bajaron=cryptoAlertas(cache);
+  const act=cache.ts?Math.max(0,Math.round((Date.now()-cache.ts)/60000)):null;
+  box.innerHTML=(act!=null?`<p class="small">Actualizado hace ${act<1?'un momento':act+' min'}${cache.parcial?' · última copia guardada':''}</p>`:'')+
+   (bajaron.length?bajaron.map(c=>{
+     const d14=c.price_change_percentage_14d_in_currency,d30=c.price_change_percentage_30d_in_currency;
+     const q=encodeURIComponent(c.name+' criptomoneda noticias');
+     const pr=c.current_price==null?'–':'US$'+c.current_price.toLocaleString('es-AR',{maximumFractionDigits:c.current_price<1?4:2});
+     return `<div class="crypto-card"><div class="h"><span class="nm">${c.image?`<img src="${c.image}" alt="">`:''}${esc(c.name)} <span class="small">${esc((c.symbol||'').toUpperCase())}</span></span><span class="pct">${d30!=null?Math.round(d30)+'% (30d)':Math.round(d14)+'% (14d)'}</span></div>
+     <div class="sub">Precio: ${pr}${d14!=null&&d30!=null?' · 14d: '+Math.round(d14)+'%':''}</div>
+     <div class="links"><a href="https://news.google.com/search?q=${q}&hl=es-419" target="_blank" rel="noopener">Ver noticias</a><a href="https://www.coingecko.com/es/monedas/${c.id}" target="_blank" rel="noopener">Ver gráfico</a></div></div>`;
+   }).join(''):`<div class="hint">Ninguna de las principales ${cache.coins.length} monedas bajó más de ${CRYPTO_UMBRAL}% en las últimas semanas.</div>`);
+}
+async function actualizarCripto(manual){
+  if(manual){guardarCacheCripto(Object.assign(leerCacheCripto()||{},{buscando:true}));pintarListaCripto();}
+  try{
+    const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=14d,30d');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const coins=data.map(c=>({id:c.id,name:c.name,symbol:c.symbol,image:c.image,current_price:c.current_price,price_change_percentage_14d_in_currency:c.price_change_percentage_14d_in_currency,price_change_percentage_30d_in_currency:c.price_change_percentage_30d_in_currency}));
+    guardarCacheCripto({ts:Date.now(),coins});
+  }catch(e){
+    const prev=leerCacheCripto();
+    if(prev&&prev.coins)guardarCacheCripto({ts:prev.ts,coins:prev.coins,parcial:true});
+    else guardarCacheCripto({ts:Date.now(),coins:null,error:'sin conexión con CoinGecko'});
+  }
+  if(view==='invertir')render();
+  avisoCriptoHome();
+}
+function avisoCriptoHome(){
+  const ping=$('#nav-ping');if(!ping)return;
+  ping.hidden=cryptoAlertas(leerCacheCripto()).length===0;
+}
+function chequeoCriptoInicial(){
+  const cache=leerCacheCripto();
+  avisoCriptoHome();
+  if(!cache||!cache.ts||Date.now()-cache.ts>CRYPTO_TTL)actualizarCripto(false);
+}
+
+/* ---------- Misiones ---------- */
+function rachaMeses(){let r=0;for(let i=S.historial.length-1;i>=0;i--){if(S.historial[i].ahorro>0)r++;else break;}return r;}
+function metaTotal(m){return m.aportes.reduce((a,x)=>a+x.m,0);}
+function totalAportes(){return S.metas.reduce((a,m)=>a+m.aportes.length,0);}
+function metaCompletas(){return S.metas.filter(m=>metaTotal(m)>=m.objetivo).length;}
+function insigniasGenerales(){
+  const b=[],r=rachaMeses();
+  b.push({on:r>=1,tx:'🔥 '+(r>=1?r+' mes'+(r>1?'es':'')+' seguidos ahorrando':'Racha de meses ahorrando')});
+  const tot=totalAportes();
+  [5,10,25].forEach(n=>b.push({on:tot>=n,tx:'💪 '+n+' aportes registrados'}));
+  b.push({on:S.metas.length>=1,tx:'🎯 Primera misión creada'});
+  const comp=metaCompletas();
+  b.push({on:comp>=1,tx:'🏁 Primera misión cumplida'});
+  b.push({on:comp>=3,tx:'🏆 3 misiones cumplidas'});
+  return b;
+}
+function metaCardHtml(m){
+  const tot=metaTotal(m),pct=m.objetivo?Math.min(100,tot/m.objetivo*100):0,done=tot>=m.objetivo;
+  return `<button class="meta-card" data-meta="${m.id}"><div class="h"><span>${esc(m.emoji||'🎯')} ${esc(m.nombre)}</span>${done?'<span class="done">✓ Cumplida</span>':''}</div>
+  <div class="small">${fmt(tot)} de ${fmt(m.objetivo)}</div>
+  <div class="bar"><i style="width:${pct}%"></i></div></button>`;
+}
+function renderMisiones(R){
+  const r=rachaMeses();
+  R.innerHTML=`
+  <div class="top"><h1>Misiones</h1><button class="plus" id="b-nueva" aria-label="Nueva misión">+</button></div>
+  <div class="small">${largo(hoyD())}</div>
+  ${r>0?`<div class="racha-card"><span style="font-size:2rem">🔥</span><div><div class="n">${r}</div><div class="small" style="color:#fff;opacity:.9">mes${r>1?'es':''} seguido${r>1?'s':''} cerrando con ahorro</div></div></div>`:''}
+  <h3>Tus misiones</h3>
+  ${S.metas.length?S.metas.slice().reverse().map(metaCardHtml).join(''):`<div class="empty card">Todavía no creaste ninguna misión. Una misión es una meta con un monto objetivo, como "Viaje a Bariloche" o "Fondo de emergencia".</div>`}
+  <h3>Insignias</h3>
+  <div class="badges">${insigniasGenerales().map(b=>`<span class="mbadge ${b.on?'on':''}">${esc(b.tx)}</span>`).join('')}</div>`;
+  $('#b-nueva').onclick=()=>abrirMeta();
+  document.querySelectorAll('[data-meta]').forEach(b=>b.onclick=()=>go('meta',b.dataset.meta));
+}
+function abrirMeta(ed){
+  const EMOJIS=['🎯','✈️','🏠','🚗','💍','🎓','🩺','🐷','💻','🎉'];
+  let emoji=ed?ed.emoji:'🎯';
+  openSheet(`<h2>${ed?'Editar misión':'Nueva misión'}</h2>
+  <label class="f" for="mt-n">Nombre</label><input id="mt-n" type="text" maxlength="40" placeholder="Viaje a Bariloche" value="${ed?esc(ed.nombre):''}">
+  <label class="f" for="mt-o">Objetivo</label><input id="mt-o" class="big" type="text" inputmode="numeric" autocomplete="off" data-money value="${ed?miles(ed.objetivo):''}">
+  <label class="f">Ícono</label><div class="emoji-pick" id="mt-e">${EMOJIS.map(e=>`<button data-v="${e}" aria-pressed="${e===emoji}">${e}</button>`).join('')}</div>
+  <button class="bigbtn" id="mt-ok">${ed?'Guardar cambios':'Crear misión'}</button>
+  ${ed?`<button class="btn" id="mt-del" style="color:var(--neg)">Borrar misión</button>`:''}
+  <button class="btn" id="mt-no">Cancelar</button>`);
+  document.querySelectorAll('#mt-e button').forEach(b=>b.onclick=()=>{emoji=b.dataset.v;document.querySelectorAll('#mt-e button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
+  $('#mt-no').onclick=closeSheet;
+  const md=$('#mt-del');if(md)md.onclick=async()=>{
+    if(!await ask('¿Borrar esta misión?','Se borra la misión y todos sus aportes registrados.','Borrar misión',true))return;
+    S.metas=S.metas.filter(x=>x.id!==ed.id);save();closeSheet();go('misiones');toast('Misión borrada');
+  };
+  $('#mt-ok').onclick=()=>{
+    const nombre=$('#mt-n').value.trim(),obj=num('#mt-o');
+    if(!nombre){toast('Escribí un nombre para la misión');return;}
+    if(!obj||obj<=0){toast('Escribí un objetivo');return;}
+    if(ed){ed.nombre=nombre;ed.objetivo=obj;ed.emoji=emoji;save();closeSheet();render();toast('Misión actualizada');return;}
+    const m={id:Date.now(),nombre,objetivo:obj,emoji,creada:iso(hoyD()),aportes:[]};
+    S.metas.push(m);save();closeSheet();go('meta',m.id);toast('¡Misión creada!');
+  };
+}
+function renderMetaDetalle(R){
+  const m=S.metas.find(x=>String(x.id)===String(param));
+  if(!m)return go('misiones');
+  const tot=metaTotal(m),pct=m.objetivo?Math.min(100,tot/m.objetivo*100):0,done=tot>=m.objetivo;
+  R.innerHTML=`<button class="back" id="b-back">‹ Volver</button>
+  <h2>${esc(m.emoji||'🎯')} ${esc(m.nombre)}</h2>
+  <div class="small">Creada el ${corto(pd(m.creada))}</div>
+  <div class="bigenv ${done?'w0':'w1'}"><div class="inner"><div class="small">${done?'¡Cumplida!':'Llevás juntado'}</div><div class="amount">${fmt(tot)}</div><div class="small">de ${fmt(m.objetivo)} (${Math.round(pct)}%)</div></div>
+  <div class="foot">${done?'✓ Objetivo alcanzado':fmt(Math.max(0,m.objetivo-tot))+' para llegar'}</div></div>
+  <div class="badges">${[25,50,75,100].map(h=>`<span class="mbadge ${pct>=h?'on':''}">${h}%</span>`).join('')}</div>
+  <button class="bigbtn" id="b-aporte">Agregar aporte</button>
+  <button class="btn" id="b-editar">Editar misión</button>
+  <h3>Aportes</h3>
+  <div class="card">${m.aportes.length?`<ul class="list">${m.aportes.slice().reverse().map(a=>`<li><div>${corto(pd(a.f))}</div><b>${fmt(a.m)}</b><button class="x" data-delap="${a.id}" aria-label="Borrar">×</button></li>`).join('')}</ul>`:`<div class="empty">Todavía no registraste aportes.</div>`}</div>`;
+  $('#b-back').onclick=()=>go('misiones');
+  $('#b-editar').onclick=()=>abrirMeta(m);
+  $('#b-aporte').onclick=()=>abrirAporte(m);
+  document.querySelectorAll('[data-delap]').forEach(b=>b.onclick=async()=>{
+    if(!await ask('¿Borrar este aporte?','No se puede deshacer.','Borrar aporte',true))return;
+    m.aportes=m.aportes.filter(a=>String(a.id)!==b.dataset.delap);save();render();toast('Aporte borrado');
+  });
+}
+function abrirAporte(m){
+  openSheet(`<h2>Agregar aporte</h2><p class="small">Para "${esc(m.nombre)}"</p>
+  <label class="f" for="ap-m">Cuánto</label><input id="ap-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="0">
+  <label class="f" for="ap-f">Fecha</label><input id="ap-f" type="date" value="${iso(hoyD())}">
+  <button class="bigbtn" id="ap-ok">Agregar</button><button class="btn" id="ap-no">Cancelar</button>`);
+  $('#ap-no').onclick=closeSheet;
+  $('#ap-ok').onclick=()=>{
+    const v=num('#ap-m');if(!v||v<=0){toast('Escribí cuánto aportaste');return;}
+    const pctAntes=m.objetivo?metaTotal(m)/m.objetivo*100:0;
+    m.aportes.push({id:Date.now(),f:$('#ap-f').value||iso(hoyD()),m:v});
+    const pctDesp=m.objetivo?metaTotal(m)/m.objetivo*100:0;
+    save();closeSheet();render();
+    const hito=[100,75,50,25].find(h=>pctAntes<h&&pctDesp>=h);
+    if(hito===100)toast('🏁 ¡Cumpliste "'+m.nombre+'"! Felicitaciones.');
+    else if(hito)toast('🎉 Llegaste al '+hito+'% de "'+m.nombre+'"');
+    else toast('Aporte agregado');
+  };
 }
 
 /* ---------- Tarjeta ---------- */
@@ -778,6 +1096,7 @@ document.addEventListener('input',e=>{const el=e.target;if(!el.matches||!el.matc
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
 
 render();
+chequeoCriptoInicial();
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.claude){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 })();
 </script>
