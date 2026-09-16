@@ -24,9 +24,10 @@
 --coral:#FF7A45;--coral-glow:rgba(255,122,69,.45);--pos:#4BE3AC;--neg:#FF6B6B;--neg-bg:rgba(255,107,107,.14);--tip-bg:#152036;
 --front:#F5F1EA;--front-ink:#0A1120;--front-muted:#5D6878;--front-line:#CFCBC2;--btn:#F5F1EA;--btn-ink:#0A1120;--spot:rgba(120,150,230,.18);--bg-top:#15213A;--grain:.07;
 --blob-a:rgba(16,201,163,.42);--blob-b:rgba(63,123,255,.45);--blob-c:rgba(140,92,247,.42);--blob-d:rgba(255,122,69,.30);--dots:rgba(255,255,255,.045);
+--nav-on:rgba(63,123,255,.18);--icochip:#1C2940;
 --shadow:0 -4px 14px rgba(0,0,0,.28)}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--shadow:0 -4px 14px rgba(14,23,38,.16)}}
-:root[data-theme="light"]{--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--shadow:0 -4px 14px rgba(14,23,38,.16)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;--shadow:0 -4px 14px rgba(14,23,38,.16)}}
+:root[data-theme="light"]{--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;--shadow:0 -4px 14px rgba(14,23,38,.16)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}html,body{margin:0;color:var(--ink)}body{background:transparent}
 body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;font-size:16px;font-variant-numeric:tabular-nums}
@@ -47,7 +48,8 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .stack{position:relative;margin-top:16px}
 .sc{position:absolute;left:0;right:0;height:170px;border:0;border-radius:20px;padding:15px 18px;text-align:left;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
 .sc{padding-top:11px!important}.sc .sc-row{display:flex;justify-content:space-between;align-items:flex-start}
-.sc .nm{font-size:.9rem;font-weight:700;line-height:1.2}.sc .nm small{display:block;font-size:.76rem;font-weight:500;opacity:.8;margin-top:1px}
+.sc .nm{font-size:.9rem;font-weight:700;line-height:1.2}.sc .nm small{display:flex;align-items:center;gap:4px;font-size:.76rem;font-weight:500;opacity:.85;margin-top:2px}
+.ico{flex:none;display:inline-block;vertical-align:-.15em}
 .sc .val{font-size:1.2rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
 .sc.s0{background:var(--s1);color:#fff}.sc.s1{background:var(--s2);color:#fff}.sc.s2{background:var(--s3);color:#fff}.sc.s3{background:var(--s4);color:#2E2206}
 .sc.next{filter:saturate(.55) brightness(.9)}
@@ -58,7 +60,8 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .front .sub{font-size:.86rem;color:var(--front-muted)}
 .front .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;border-top:1px dashed var(--front-line);padding-top:10px}
 .front .meta>*{background:none;border:0;padding:0;text-align:left;font-size:.78rem;color:var(--front-muted)}
-.front .meta b{display:block;color:var(--front-ink);font-size:.95rem;font-weight:700}
+.front .meta b{display:block;color:var(--front-ink);font-size:.95rem;font-weight:700;margin-top:2px}
+.front .meta i{display:flex;align-items:center;gap:4px;font-style:normal}
 .note{font-size:.82rem;color:var(--muted);text-align:center;margin-top:10px}
 .hint{background:var(--tip-bg);border:1px solid var(--line);border-left:4px solid var(--s4);border-radius:14px;padding:12px 14px;margin-top:14px;font-size:.93rem}
 .warn{background:var(--neg-bg);color:var(--neg);border-radius:14px;padding:12px 14px;margin-top:12px;font-size:.93rem}
@@ -68,11 +71,10 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 12px calc(8px + env(safe-area-inset-bottom));z-index:5}
 nav div{display:grid;grid-template-columns:repeat(5,1fr);max-width:460px;width:100%}
 nav button{background:none;border:0;padding:6px 2px;font-size:.66rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;position:relative}
-nav button span{font-size:1.15rem;line-height:1.1;filter:grayscale(1);opacity:.7}
+nav button span{width:36px;height:26px;border-radius:9px;display:grid;place-items:center;transition:background .18s}
 nav button .ping{position:absolute;top:2px;right:22%;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--surface)}
 nav button[aria-current="page"]{color:var(--ink)}
-nav button[aria-current="page"] span{filter:none;opacity:1}
-nav button[aria-current="page"]:after{content:"";width:4px;height:4px;border-radius:50%;background:var(--s1);margin-top:2px}
+nav button[aria-current="page"] span{background:var(--nav-on)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 16px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0}
 .row+.row{border-top:1px solid var(--line)}
@@ -97,6 +99,8 @@ nav button[aria-current="page"]:after{content:"";width:4px;height:4px;border-rad
 .list{list-style:none;margin:0;padding:0}
 .list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .list li:first-child{border-top:0}
+.list .ic{width:34px;height:34px;border-radius:10px;background:var(--icochip);display:grid;place-items:center;flex:none;color:var(--ink)}
+.list .ic.imp{background:var(--neg-bg);color:var(--neg)}
 .list .d{flex:1;min-width:0;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit}
 .list .d:after{content:'Tocá para editar';display:none}
 .list .d div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -106,7 +110,7 @@ nav button[aria-current="page"]:after{content:"";width:4px;height:4px;border-rad
 .bar i{display:block;height:100%;background:var(--s1)}
 .bar i.r{background:var(--neg)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:9px 13px;font-size:.93rem}
+.chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:9px 13px;font-size:.93rem;display:inline-flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .badge{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 12px;margin:0 6px 6px 0;font-size:.88rem}
 .sheet{position:fixed;inset:0;background:rgba(5,10,20,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
@@ -252,11 +256,11 @@ nav button[aria-current="page"]{color:var(--ink)}
 <body>
 <main id="root"></main>
 <nav id="nav"><div>
-  <button data-go="home"><span>💵</span>Hoy</button>
-  <button data-go="tarjeta"><span>💳</span>Tarjeta</button>
-  <button data-go="invertir"><span>🌱</span>Invertir<i class="ping" id="nav-ping" hidden></i></button>
-  <button data-go="misiones"><span>🎯</span>Misiones</button>
-  <button data-go="historial"><span>📈</span>Progreso</button>
+  <button data-go="home"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></svg></span>Hoy</button>
+  <button data-go="tarjeta"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/></svg></span>Tarjeta</button>
+  <button data-go="invertir"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c0-3.5-2.5-6-7-6 0 4 2 6.5 7 6Z"/><path d="M12 11c0-4 2.8-7 7-7 0 4.5-2.2 7.3-7 7Z"/></svg></span>Invertir<i class="ping" id="nav-ping" hidden></i></button>
+  <button data-go="misiones"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>Misiones</button>
+  <button data-go="historial"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Progreso</button>
 </div></nav>
 <div class="toast" id="toast" role="status"></div>
 <div class="sheet" id="sheet"><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
@@ -265,8 +269,33 @@ nav button[aria-current="page"]{color:var(--ink)}
 (function(){
 "use strict";
 const KEY='mi-plata-v1';
-const CATS=[['super','🛒 Súper'],['transporte','🚌 Transporte'],['comida','🍔 Comida'],['salidas','🎉 Salidas'],['salud','💊 Salud'],['otro','✏️ Otro']];
+const CATS=[['super','Súper'],['transporte','Transporte'],['comida','Comida'],['salidas','Salidas'],['salud','Salud'],['otro','Otro']];
 const CATNAME=Object.fromEntries(CATS.map(c=>[c[0],c[1]]));
+
+/* ---------- Íconos ---------- */
+const ICO={
+ cart:'<path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/>',
+ bus:'<rect x="4" y="4" width="16" height="12" rx="2.5"/><path d="M4 10.5h16M7.5 20v-2M16.5 20v-2"/><circle cx="8" cy="13.5" r="1"/><circle cx="16" cy="13.5" r="1"/>',
+ bowl:'<path d="M3.5 11h17a7.5 7 0 0 1-8.5 8 7.5 7 0 0 1-8.5-8Z"/><path d="M7 11V6.5M12 11V5M17 11V6.5"/>',
+ glass:'<path d="M5.5 3h13l-1.4 6a5.2 5.2 0 0 1-10.2 0Z"/><path d="M12 14v6M8.5 20h7"/>',
+ heart:'<path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z"/>',
+ pencil:'<path d="M4 20h4L18.5 9.5a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="M13.5 6.5l4 4"/>',
+ card:'<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/>',
+ bill:'<rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/>',
+ alert:'<path d="M12 4.5 2.8 19.5h18.4L12 4.5Z"/><path d="M12 10.5v4M12 17.4v.1"/>',
+ bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.6.4.9 1 .9 1.7V16h5v-.4c0-.7.3-1.3.9-1.7A6 6 0 0 0 12 3Z"/>',
+ lock:'<rect x="5" y="10.5" width="14" height="9" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+ check:'<path d="M4 12.5l5 5L20 6"/>',
+ cross:'<path d="M6 6l12 12M18 6L6 18"/>',
+ piggy:'<path d="M4 12.5c0-3.6 3.2-6.5 8-6.5s8 2.4 8 6a4 4 0 0 1-1.2 2.9c-.3 3-2.8 5.1-6.8 5.1-4.5 0-8-2.7-8-6Z"/><path d="M7 12.4v1.8M20 11l1.6-.8"/>',
+ calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/>',
+ down:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 11v6h-6"/>',
+ wifi:'<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M8.5 16a5.5 5.5 0 0 1 7 0"/><path d="M12 19.4v.1"/>',
+ bag:'<path d="M5.5 8h13l1 12H4.5l1-12Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
+};
+const TIPOICO={luz:'bulb',tel:'wifi',otra:'bag'};
+const CATICO={super:'cart',transporte:'bus',comida:'bowl',salidas:'glass',salud:'heart',otro:'pencil'};
+const ico=(n,s,w)=>ICO[n]?`<svg class="ico" viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="${w||1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`:'';
 const TIPOS=[['luz','Luz'],['tel','Teléfono e internet'],['otra','Otra cosa']];
 const PCT=[.15,.20,.25,.40];
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -456,12 +485,16 @@ function renderBienvenida(R){
   $('#b-rest').onclick=()=>$('#restore').click();
 }
 
+function gastoIco(g){return g.medio==='tarjeta'?'card':g.imp?'alert':(CATICO[g.cat]||'pencil');}
+function gastoNombre(g){return g.medio==='tarjeta'?TIPOS.find(x=>x[0]===g.tipo)[1]:g.imp?'Imprevisto':(CATNAME[g.cat]||'Gasto');}
+function gastoChip(g){return `<span class="ic${g.imp?' imp':''}">${ico(gastoIco(g),17)}</span>`;}
+
 function stackCard(w){
   const nombres=['Semana 1','Semana 2','Semana 3','Sobre libre'];
   let der='',val='';
-  if(w.estado==='done'){der=w.queda>=0?'✓ cerrado':'✗ pasado';val=(w.queda>=0?'+':'')+fmt(w.queda);}
+  if(w.estado==='done'){der=w.queda>=0?ico('check',12,2.6)+'Cerrado':ico('cross',12,2.6)+'Excedido';val=(w.queda>=0?'+':'')+fmt(w.queda);}
   else if(w.estado==='now'){der='quedan';val=fmt(Math.max(0,w.queda));}
-  else{der=(w.i<3?'🔒 ':'desde ')+corto(w.desde);val=fmt(w.tope);}
+  else{der=(w.i<3?ico('lock',11,2.1)+'desde ':'desde ')+corto(w.desde);val=fmt(w.tope);}
   return `<button class="sc s${w.i} ${w.estado}" style="top:${w.i*54}px;--i:${w.i}" data-sobre="${w.i}"><div class="sc-row"><span class="nm">${nombres[w.i]}<small>${der}</small></span><span class="val">${val}</span></div></button>`;
 }
 
@@ -478,7 +511,7 @@ function renderHome(R){
     sub=h.gasto>0?'Gastaste '+fmt(h.gasto)+' de '+fmt(h.permitido):'Todavía no gastaste nada hoy';
     const msgs=mensajes(c,r);
     const luzPend=c.luz&&!c.gastos.some(g=>g.medio==='tarjeta'&&g.tipo==='luz');
-    extra=(luzPend?`<div class="hint" style="border-left-color:var(--s2);display:flex;gap:12px;align-items:center;justify-content:space-between"><span>💡 Este mes te toca la luz. Pagala con la tarjeta.</span><button class="chip" id="b-luz" style="flex:none">Ya la pagué</button></div>`:'')+(neg?`<div class="warn">Te pasaste ${fmt(-queda)}. Se descuenta de los días que quedan de esta semana.</div>`:'')+`<div class="hint">${esc(msgs[t.getDate()%msgs.length])}</div>`;
+    extra=(luzPend?`<div class="hint" style="border-left-color:var(--s2);display:flex;gap:12px;align-items:center;justify-content:space-between"><span style="display:flex;gap:9px;align-items:center">${ico('bulb',17)}Este mes te toca la luz. Pagala con la tarjeta.</span><button class="chip" id="b-luz" style="flex:none">Ya la pagué</button></div>`:'')+(neg?`<div class="warn">Te pasaste ${fmt(-queda)}. Se descuenta de los días que quedan de esta semana.</div>`:'')+`<div class="hint">${esc(msgs[t.getDate()%msgs.length])}</div>`;
   }
   const top=4*54;
   R.innerHTML=`
@@ -491,9 +524,9 @@ function renderHome(R){
       <div class="big ${neg?'neg':''}" ${!r.antes&&!r.despues?`data-count="${neg?0:Math.round(r.hoyRec.permitido-r.hoyRec.gasto)}" data-key="hoy"`:''}>${big}</div>
       <div class="sub">${sub}</div>
       <div class="meta">
-        <button id="m-alc">Alcancía<b data-count="${Math.round(r.alcancia)}" data-key="alc">${fmt(r.alcancia)}</b></button>
-        <button id="m-tj">Tarjeta<b>${fmt(tj)}</b></button>
-        <span>Día<b>${r.antes?'–':dia+' de '+total}</b></span>
+        <button id="m-alc"><i>${ico('piggy',13)}Alcancía</i><b data-count="${Math.round(r.alcancia)}" data-key="alc">${fmt(r.alcancia)}</b></button>
+        <button id="m-tj"><i>${ico('card',13)}Tarjeta</i><b>${fmt(tj)}</b></button>
+        <span><i>${ico('calendar',13)}Día</i><b>${r.antes?'–':dia+' de '+total}</b></span>
       </div>
     </div>
   </div>
@@ -501,7 +534,7 @@ function renderHome(R){
   ${cryptoHintHtml()}
   ${extra}
   ${r.despues?`<button class="bigbtn" id="b-cobre">Cobré, cerrar el mes</button>`:`<button class="bigbtn" id="b-gaste">Gasté plata</button>`}
-  ${(()=>{const hg=c.gastos.filter(g=>g.f===iso(t)).slice().reverse();return hg.length?`<h3>Gastos de hoy</h3><div class="card"><ul class="list">${hg.map(g=>`<li><button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${g.medio==='tarjeta'?'💳 '+TIPOS.find(x=>x[0]===g.tipo)[1]:g.imp?'⚠️ Imprevisto'+(g.nota?', '+esc(g.nota):''):esc(CATNAME[g.cat]||'Gasto')}</div></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul></div>`:'';})()}`;
+  ${(()=>{const hg=c.gastos.filter(g=>g.f===iso(t)).slice().reverse();return hg.length?`<h3>Gastos de hoy</h3><div class="card"><ul class="list">${hg.map(g=>`<li>${gastoChip(g)}<button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${esc(gastoNombre(g))}${g.imp&&g.nota?', '+esc(g.nota):''}</div></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul></div>`:'';})()}`;
   document.querySelectorAll('[data-sobre]').forEach(b=>b.onclick=()=>go('sobre',Number(b.dataset.sobre)));
   ['#b-gaste','#b-plus'].forEach(id=>{const e=$(id);if(e)e.onclick=()=>abrirGasto();});
   $('#m-alc').onclick=()=>go('historial');$('#m-tj').onclick=()=>go('tarjeta');
@@ -533,7 +566,7 @@ function renderSobre(R){
     <div class="bill ${d.hoy?'today':'past '+(d.ok?'ok':'over')}"><div>${d.hoy?'Hoy':largo(pd(d.f)).split(' de ')[0]}<small>${d.hoy?'podés gastar':'gastaste '+fmt(d.gasto)}</small></div>
     <b class="a">${fmt(d.hoy?Math.max(0,d.permitido-d.gasto):d.permitido)}</b></div>`).join('')}</div>`:''}
   <h3>Gastos</h3>
-  <div class="card">${gastos.length?`<ul class="list">${gastos.map(g=>`<li><button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${esc(g.imp?'⚠️ Imprevisto':CATNAME[g.cat]||'Gasto')}${g.nota?', '+esc(g.nota):''}</div><span class="small">${corto(pd(g.f))}</span></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul>`:`<div class="empty">Sin gastos todavía.</div>`}</div>`;
+  <div class="card">${gastos.length?`<ul class="list">${gastos.map(g=>`<li>${gastoChip(g)}<button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${esc(gastoNombre(g))}${g.nota?', '+esc(g.nota):''}</div><span class="small">${corto(pd(g.f))}</span></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul>`:`<div class="empty">Sin gastos todavía.</div>`}</div>`;
   $('#b-back').onclick=()=>go('home');
   const ba=$('#b-anotar');if(ba)ba.onclick=()=>abrirGasto();
   const bm=$('#b-monto');if(bm)bm.onclick=()=>cambiarMonto(w.i);
@@ -568,11 +601,11 @@ function abrirGasto(pre,editId){
   openSheet(`<h2>${ed?'Editar gasto':medio==='tarjeta'?'Cargar en la tarjeta':'Gasté plata'}</h2>
   <label class="f" for="g-m">Cuánto</label><input id="g-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="0" value="${ed?miles(ed.m):''}">
   <label class="f">Cómo pagaste</label>
-  <div class="chips" id="g-medio"><button class="chip" data-v="plata">💵 Plata</button><button class="chip" data-v="tarjeta">💳 Tarjeta</button></div>
-  <div id="g-plata"><label class="f">En qué</label><div class="chips" id="g-cat">${CATS.map(c=>`<button class="chip" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>
+  <div class="chips" id="g-medio"><button class="chip" data-v="plata">${ico('bill',16)}Plata</button><button class="chip" data-v="tarjeta">${ico('card',16)}Tarjeta</button></div>
+  <div id="g-plata"><label class="f">En qué</label><div class="chips" id="g-cat">${CATS.map(c=>`<button class="chip" data-v="${c[0]}">${ico(CATICO[c[0]],16)}${c[1]}</button>`).join('')}</div>
     <label class="check"><input type="checkbox" id="g-imp" ${imp?'checked':''}><span>Fue un imprevisto. Sacalo del sobre libre, no del de esta semana.</span></label>
     <div id="g-notaw" hidden><label class="f" for="g-nota">¿Qué pasó?</label><input id="g-nota" type="text" maxlength="60" placeholder="Remedio, arreglo, regalo…" value="${ed&&ed.nota?esc(ed.nota):''}"></div></div>
-  <div id="g-tarj" hidden><label class="f">¿Qué pagaste con la tarjeta?</label><div class="chips" id="g-tipo">${TIPOS.map(c=>`<button class="chip" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>
+  <div id="g-tarj" hidden><label class="f">¿Qué pagaste con la tarjeta?</label><div class="chips" id="g-tipo">${TIPOS.map(c=>`<button class="chip" data-v="${c[0]}">${ico(TIPOICO[c[0]],16)}${c[1]}</button>`).join('')}</div>
     <div class="warn" id="g-warn" hidden>La tarjeta es solo para los fijos. Si podés, pagalo con la plata del sobre.</div></div>
   <label class="f" for="g-f">Fecha</label><input id="g-f" type="date" value="${ed?ed.f:iso(hoyD())}">
   <button class="bigbtn" id="g-ok">${ed?'Guardar cambios':'Anotar'}</button>
@@ -629,7 +662,7 @@ function cryptoAlertas(cache){
 function cryptoHintHtml(){
   const bajaron=cryptoAlertas(leerCacheCripto());
   if(!bajaron.length)return'';
-  return `<button class="hint" style="border-left-color:var(--neg);display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;text-align:left" id="b-crypto-hint"><span>📉 ${bajaron.length} cripto${bajaron.length>1?'s':''} bajaron fuerte. Ver oportunidades</span><span>›</span></button>`;
+  return `<button class="hint" style="border-left-color:var(--neg);display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;text-align:left" id="b-crypto-hint"><span style="display:flex;gap:9px;align-items:center">${ico('down',17)}${bajaron.length} cripto${bajaron.length>1?'s':''} bajaron fuerte. Ver oportunidades</span><span>›</span></button>`;
 }
 function renderInvertir(R){
   const dato=DATOS[datoIdx],disponible=montoDisponibleParaInvertir();
@@ -859,7 +892,7 @@ function renderTarjeta(R){
   <button class="btn" id="b-base">Editar Plan V y comisiones</button>
   ${c?`<button class="bigbtn" id="b-cargar">Cargar un gasto en la tarjeta</button>`:''}
   <h3>Cargado este mes</h3>
-  <div class="card">${tj.length?`<ul class="list">${tj.slice().reverse().map(g=>`<li><button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${g.tipo==='luz'?'💡':g.tipo==='tel'?'📶':'🛍️'} ${TIPOS.find(x=>x[0]===g.tipo)[1]}</div><span class="small">${corto(pd(g.f))}</span></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul>`:`<div class="empty">${c?'Nada cargado este mes.':'Cuando armes tus sobres, acá vas a ver lo que cargues en la tarjeta.'}</div>`}</div>`;
+  <div class="card">${tj.length?`<ul class="list">${tj.slice().reverse().map(g=>`<li><span class="ic">${ico(TIPOICO[g.tipo]||'card',17)}</span><button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${TIPOS.find(x=>x[0]===g.tipo)[1]}</div><span class="small">${corto(pd(g.f))}</span></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul>`:`<div class="empty">${c?'Nada cargado este mes.':'Cuando armes tus sobres, acá vas a ver lo que cargues en la tarjeta.'}</div>`}</div>`;
   const bc=$('#b-cargar');if(bc)bc.onclick=()=>abrirGasto('tarjeta');
   $('#b-base').onclick=()=>{
     openSheet(`<h2>Plan V y comisiones</h2><p class="small">Lo que viene fijo en cada resumen, sin contar tus compras.</p><input id="b-v" class="big" type="text" inputmode="numeric" autocomplete="off" data-money value="${miles(S.baseResumen)}"><button class="bigbtn" id="b-ok">Guardar</button><button class="btn" id="b-no">Cancelar</button>`);
@@ -937,7 +970,7 @@ function htmlCierre(cz){
   <div class="card">${cz.semanas.map((s,i)=>`<div style="padding:6px 0"><div class="row" style="padding:0;border:0"><span>${nombres[i]}</span><span>${fmt(s.gastado)} de ${fmt(s.tope)}</span></div><div class="bar"><i class="${s.bal<0?'r':''}" style="width:${s.tope?Math.min(100,s.gastado/s.tope*100):0}%"></i></div></div>`).join('')}
   <p class="small">${mejor&&mejor.r>0?'El que mejor cuidaste: '+nombres[mejor.i]+'. ':''}${pasadas.length?'Te pasaste en: '+pasadas.join(', ')+'.':'No te pasaste en ninguno.'}</p></div>
   <h3>En qué se fue la plata</h3>
-  <div class="card">${catList.length?catList.map(([k,v])=>`<div style="padding:6px 0"><div class="row" style="padding:0;border:0"><span>${k==='imprevisto'?'⚠️ Imprevistos':CATNAME[k]||k}</span><span>${fmt(v)}, ${cz.gastado?Math.round(v/cz.gastado*100):0}%</span></div><div class="bar"><i style="width:${cz.gastado?v/cz.gastado*100:0}%"></i></div></div>`).join(''):'<div class="empty">No anotaste gastos.</div>'}</div>
+  <div class="card">${catList.length?catList.map(([k,v])=>`<div style="padding:6px 0"><div class="row" style="padding:0;border:0"><span style="display:flex;align-items:center;gap:7px">${k==='imprevisto'?ico('alert',15)+'Imprevistos':ico(CATICO[k]||'pencil',15)+(CATNAME[k]||k)}</span><span>${fmt(v)}, ${cz.gastado?Math.round(v/cz.gastado*100):0}%</span></div><div class="bar"><i style="width:${cz.gastado?v/cz.gastado*100:0}%"></i></div></div>`).join(''):'<div class="empty">No anotaste gastos.</div>'}</div>
   <h3>Tarjeta</h3>
   <div class="card">
     <div class="row"><span>Fijos cargados</span><span>${fmt(cz.tarjetaFijos)}</span></div>
@@ -976,7 +1009,7 @@ function renderCobre(R){
   <div class="two"><div><label class="f" for="n-ini">Cobré el</label><input id="n-ini" type="date" value="${iso(ini)}"></div>
   <div><label class="f" for="n-fin">Próximo cobro</label><input id="n-fin" type="date" value="${iso(sig)}"></div></div>
   <label class="f">¿Este mes te toca pagar la luz?</label>
-  <div class="chips" id="n-luz"><button class="chip" data-v="1">💡 Sí, me toca</button><button class="chip" data-v="0">No, paga mi mamá</button></div>
+  <div class="chips" id="n-luz"><button class="chip" data-v="1">${ico('bulb',16)}Sí, me toca</button><button class="chip" data-v="0">No, paga mi mamá</button></div>
   <h3>Tus sobres</h3><div id="n-prev"></div>
   <button class="bigbtn" id="n-ok">Armar mis sobres</button>`;
   $('#b-back').onclick=()=>go(S.historial.length?'historial':'home');
