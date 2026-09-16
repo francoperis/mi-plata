@@ -62,10 +62,10 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .front .meta>*{background:none;border:0;padding:0;text-align:left;font-size:.78rem;color:var(--front-muted)}
 .front .meta b{display:block;color:var(--front-ink);font-size:.95rem;font-weight:700;margin-top:2px}
 .front .meta i{display:flex;align-items:center;gap:4px;font-style:normal}
-.note{font-size:.82rem;color:var(--muted);text-align:center;margin-top:10px}
-.hint{background:var(--tip-bg);border:1px solid var(--line);border-left:4px solid var(--s4);border-radius:14px;padding:12px 14px;margin-top:14px;font-size:.93rem}
-.warn{background:var(--neg-bg);color:var(--neg);border-radius:14px;padding:12px 14px;margin-top:12px;font-size:.93rem}
-.bigbtn{display:block;width:100%;margin-top:18px;border:0;border-radius:16px;padding:18px;font-weight:700;font-size:1.1rem;background:var(--coral);color:#0E1726}
+.note{font-size:.82rem;color:var(--muted);text-align:center;margin-top:14px}
+.hint{background:var(--tip-bg);border:1px solid var(--line);border-left:4px solid var(--s4);border-radius:14px;padding:15px 16px;margin-top:16px;font-size:.93rem;line-height:1.5}
+.warn{background:var(--neg-bg);color:var(--neg);border-radius:14px;padding:15px 16px;margin-top:16px;font-size:.93rem;line-height:1.5}
+.bigbtn{display:block;width:100%;margin-top:22px;border:0;border-radius:16px;padding:18px;font-weight:700;font-size:1.1rem;background:var(--coral);color:#0E1726}
 .btn{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:600;background:var(--surface)}
 .back{background:none;border:0;padding:6px 0;font-weight:600;color:var(--muted)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 12px calc(8px + env(safe-area-inset-bottom));z-index:5}
@@ -426,17 +426,70 @@ function sim(c,hasta){
   return {ws:out,cur,actual,antes,despues,dias,hoyRec,alcancia,alcCerrada,imp,racha,completados};
 }
 
+const plural=(n,s,p)=>n===1?s:(p||s+'s');
+
 function mensajes(c,r){
-  const m=[];const comp=r.completados;
-  const ayer=comp[comp.length-1];
+  const m=[],comp=r.completados,ayer=comp[comp.length-1];
+  const alc=r.alcancia,dias=Math.max(1,diff(pd(c.inicio),pd(c.fin)));
+  const gastado=c.gastos.filter(g=>g.medio==='plata').reduce((a,g)=>a+g.m,0);
+  const promGasto=comp.length?gastado/comp.length:0;
+  const promAhorro=comp.length?alc/comp.length:0;
+  const ahorroTotal=S.historial.reduce((a,x)=>a+Math.max(0,x.ahorro),0)+alc;
+
+  /* Cómo venís hoy */
   if(r.hoyRec&&r.hoyRec.gasto>r.hoyRec.permitido+1)m.push('Hoy te pasaste '+fmt(r.hoyRec.gasto-r.hoyRec.permitido)+'. Mañana arrancás de nuevo, no pasa nada.');
   if(ayer&&ayer.permitido-ayer.gasto>=100)m.push('Ayer gastaste '+fmt(ayer.gasto)+' y te sobraron '+fmt(ayer.permitido-ayer.gasto)+'. Eso ya es ahorro.');
   if(r.racha>=2)m.push(r.racha+' días seguidos gastando menos que tu número. Seguí así.');
-  const prom=comp.length?r.alcancia/comp.length:0;
-  if(prom>=300){const p=r100(prom);m.push('Venís ahorrando unos '+fmt(p)+' por día. Así, en un año tendrías '+fmt(p*365)+'.');}
-  if(r.alcancia>=40000)m.push('Con lo que llevás ahorrado ya pagás un mes de teléfono e internet.');
-  if(S.historial.length){const prev=S.historial[S.historial.length-1];if(r.alcancia>prev.ahorro&&prev.ahorro>0)m.push('Ya ahorraste más que en todo el mes pasado.');}
-  if(!m.length)m.push('Si ahorrás $1.000 por día, en un año tenés $365.000. Con $5.000 por día, $1.825.000.');
+  if(S.historial.length){const prev=S.historial[S.historial.length-1];if(alc>prev.ahorro&&prev.ahorro>0)m.push('Ya ahorraste más que en todo el mes pasado.');}
+
+  /* Proyecciones de tu ritmo */
+  if(promAhorro>=300){
+    const p=r100(promAhorro);
+    m.push('Venís ahorrando unos '+fmt(p)+' por día. Así, en un año tendrías '+fmt(r1000(p*365))+'.');
+    m.push('A este ritmo, en 6 meses juntás '+fmt(r1000(p*182))+'.');
+    if(c.cobro>0&&p*365>=c.cobro)m.push('Un año a este ritmo son '+(p*365/c.cobro).toFixed(1).replace('.',',')+' sueldos tuyos guardados.');
+  }
+
+  /* En relación a lo que cobrás */
+  if(c.cobro>0&&alc>=1000){
+    const pct=Math.round(alc/c.cobro*100);
+    if(pct>=1)m.push('Lo que llevás ahorrado es el '+pct+'% de lo que cobraste este mes.');
+    const porDia=c.cobro/dias;
+    if(alc>=porDia){const d=Math.floor(alc/porDia);m.push('Ahorraste el equivalente a '+d+' '+plural(d,'día')+' de sueldo.');}
+  }
+
+  /* Cuánto aire te da lo ahorrado */
+  if(promGasto>=200&&alc>=promGasto){
+    const d=Math.floor(alc/promGasto);
+    m.push('Con lo ahorrado te bancás '+d+' '+plural(d,'día')+' de tus gastos sin que entre un peso.');
+  }
+
+  /* Colchón de emergencia */
+  if(c.disponible>0&&ahorroTotal>=1000){
+    const colchon=c.disponible*3,pct=Math.round(ahorroTotal/colchon*100);
+    if(pct>=100)m.push('Ya tenés más de 3 meses de gastos guardados. Ese es el colchón que se recomienda antes de invertir.');
+    else if(pct>=5)m.push('Un colchón de 3 meses de gastos serían '+fmt(r1000(colchon))+'. Llevás el '+pct+'%.');
+  }
+
+  /* Tus misiones */
+  const pend=S.metas.map(x=>({x,falta:Math.max(0,x.objetivo-metaTotal(x))})).filter(o=>o.falta>0);
+  if(pend.length){
+    const cerca=pend.slice().sort((a,b)=>a.falta-b.falta)[0];
+    m.push('Te faltan '+fmt(cerca.falta)+' para "'+cerca.x.nombre+'".');
+    if(promAhorro>=300){const d=Math.ceil(cerca.falta/promAhorro);m.push('A este ritmo llegás a "'+cerca.x.nombre+'" en '+d+' '+plural(d,'día')+'.');}
+    if(alc>0){const p=Math.round(alc/cerca.x.objetivo*100);if(p>=1)m.push('Lo que ahorraste este mes cubre el '+p+'% de "'+cerca.x.nombre+'".');}
+  }else if(alc>=5000&&!S.metas.length){
+    m.push('Ponele nombre a esta plata: creá una misión y mirá cuánto te falta para llegar.');
+  }
+  if(alc>=20000)m.push('Con lo que llevás ahorrado ya podés empezar a moverlo. Mirá la pestaña Invertir.');
+
+  /* Siempre queda algo para decir */
+  if(c.cobro>0){
+    m.push('Si guardás el 10% de lo que cobrás, en un año son '+fmt(r1000(c.cobro*.1*12))+'.');
+    m.push('Un día entero de tu sueldo son '+fmt(r100(c.cobro/dias))+'. Eso es lo que se te va cada vez que un día se te escapa.');
+  }
+  m.push('Si ahorrás $1.000 por día, en un año tenés $365.000. Con $5.000 por día, $1.825.000.');
+  m.push('Cada $2.000 que no gastás hoy son $60.000 en un mes, si lo repetís todos los días.');
   return m;
 }
 
