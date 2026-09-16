@@ -24,10 +24,10 @@
 --coral:#FF7A45;--coral-glow:rgba(255,122,69,.45);--pos:#4BE3AC;--neg:#FF6B6B;--neg-bg:rgba(255,107,107,.14);--tip-bg:#152036;
 --front:#F5F1EA;--front-ink:#0A1120;--front-muted:#5D6878;--front-line:#CFCBC2;--btn:#F5F1EA;--btn-ink:#0A1120;--spot:rgba(120,150,230,.18);--bg-top:#15213A;--grain:.07;
 --blob-a:rgba(16,201,163,.42);--blob-b:rgba(63,123,255,.45);--blob-c:rgba(140,92,247,.42);--blob-d:rgba(255,122,69,.30);--dots:rgba(255,255,255,.045);
---nav-on:rgba(63,123,255,.18);--icochip:#1C2940;
+--nav-on:rgba(63,123,255,.18);--icochip:#1C2940;color-scheme:dark;
 --shadow:0 -4px 14px rgba(0,0,0,.28)}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;--shadow:0 -4px 14px rgba(14,23,38,.16)}}
-:root[data-theme="light"]{--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;--shadow:0 -4px 14px rgba(14,23,38,.16)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;color-scheme:light;--shadow:0 -4px 14px rgba(14,23,38,.16)}}
+:root[data-theme="light"]{--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;color-scheme:light;--shadow:0 -4px 14px rgba(14,23,38,.16)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}html,body{margin:0;color:var(--ink)}body{background:transparent}
 body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;font-size:16px;font-variant-numeric:tabular-nums}
@@ -121,7 +121,9 @@ input[type=number],input[type=text],input[type=date]{width:100%;font:inherit;fon
 input.big{font-size:2.1rem;font-weight:800;padding:8px 12px;letter-spacing:-.03em}
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.93rem}
 .check input{width:22px;height:22px;margin:0;flex:none;accent-color:var(--s1)}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.two input{min-width:0}
+@media (max-width:359px){.two{grid-template-columns:1fr}}
 .envs{position:relative;height:160px;margin-top:14px}
 .envs div{position:absolute;left:0;right:0;height:110px;border-radius:16px;padding:10px 14px;font-size:.84rem;display:flex;justify-content:space-between;box-shadow:var(--shadow)}
 .envs div b{font-size:.95rem}
@@ -1061,8 +1063,8 @@ function renderCobre(R){
   <label class="f" for="n-tj">¿Cuánto pagaste de tarjeta?</label><input id="n-tj" class="big" type="text" inputmode="numeric" autocomplete="off" data-money value="${prev?'':miles(663000)}" placeholder="0">
   <div class="two"><div><label class="f" for="n-ini">Cobré el</label><input id="n-ini" type="date" value="${iso(ini)}"></div>
   <div><label class="f" for="n-fin">Próximo cobro</label><input id="n-fin" type="date" value="${iso(sig)}"></div></div>
-  <label class="f">¿Este mes te toca pagar la luz?</label>
-  <div class="chips" id="n-luz"><button class="chip" data-v="1">${ico('bulb',16)}Sí, me toca</button><button class="chip" data-v="0">No, paga mi mamá</button></div>
+  <label class="f">La luz, ¿te toca este mes?</label>
+  <div class="chips" id="n-luz"><button class="chip" data-v="1">Sí</button><button class="chip" data-v="0">No</button></div>
   <h3>Tus sobres</h3><div id="n-prev"></div>
   <button class="bigbtn" id="n-ok">Armar mis sobres</button>`;
   $('#b-back').onclick=()=>go(S.historial.length?'historial':'home');
