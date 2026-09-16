@@ -363,7 +363,112 @@ function estado(d){
 let S;
 try{S=estado(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(e){S=estado();}
 CRYPTO_UMBRAL=S.cryptoUmbral;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}sucio=true;programarSubida();}
+
+/* ---------- Sincronización entre dispositivos ---------- */
+/* Completar con los datos del proyecto de Supabase. Vacío = la app funciona
+   solo en este dispositivo, como antes. La clave anon es pública a propósito:
+   lo que protege los datos es que la tabla solo se toca por las funciones. */
+const NUBE={url:'',key:''};
+const SYNC_KEY='mi-plata-sync-v1';
+let sync={codigo:null,ultima:null};
+try{sync=Object.assign(sync,JSON.parse(localStorage.getItem(SYNC_KEY)||'null'));}catch(e){}
+let sucio=false,subiendo=null,estadoNube=sync.codigo?'pendiente':'';
+const hayNube=()=>!!(NUBE.url&&NUBE.key);
+const vinculado=()=>hayNube()&&!!sync.codigo;
+function guardarSync(){try{localStorage.setItem(SYNC_KEY,JSON.stringify(sync));}catch(e){}}
+
+const ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function nuevoCodigo(){
+  const a=new Uint8Array(20);crypto.getRandomValues(a);
+  return normCodigo([...a].map(n=>ABC[n%ABC.length]).join(''));
+}
+const normCodigo=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/(.{5})(?=.)/g,'$1-');
+
+async function nubeRPC(fn,args){
+  const r=await fetch(NUBE.url.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{apikey:NUBE.key,Authorization:'Bearer '+NUBE.key,'Content-Type':'application/json'},
+    body:JSON.stringify(args)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
+const nubeLeer=c=>nubeRPC('leer_estado',{p_codigo:c}).then(f=>(Array.isArray(f)?f[0]:f)||null);
+const nubeGuardar=(c,d)=>nubeRPC('guardar_estado',{p_codigo:c,p_data:d});
+
+function pintarSync(e){
+  estadoNube=e;
+  const el=$('#sync-estado');if(el)el.textContent=textoSync();
+}
+function textoSync(){
+  if(!vinculado())return'';
+  return {ok:'Al día',subiendo:'Sincronizando…',pendiente:'Sin conexión. Se sincroniza al volver.'}[estadoNube]||'';
+}
+
+async function subir(){
+  if(!vinculado())return;
+  pintarSync('subiendo');
+  try{
+    const t=await nubeGuardar(sync.codigo,S);
+    sync.ultima=t;guardarSync();sucio=false;pintarSync('ok');
+  }catch(e){pintarSync('pendiente');}
+}
+function programarSubida(){
+  if(!vinculado())return;
+  clearTimeout(subiendo);subiendo=setTimeout(subir,1200);
+}
+async function bajar(){
+  if(!vinculado())return;
+  if(sucio)return subir();
+  pintarSync('subiendo');
+  try{
+    const fila=await nubeLeer(sync.codigo);
+    if(!fila)return subir();
+    if(fila.actualizado===sync.ultima)return pintarSync('ok');
+    S=estado(fila.data);CRYPTO_UMBRAL=S.cryptoUmbral;
+    try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+    sync.ultima=fila.actualizado;guardarSync();sucio=false;
+    pintarSync('ok');render();
+  }catch(e){pintarSync('pendiente');}
+}
+function tieneDatos(s){return !!(s&&(s.ciclo||(s.historial&&s.historial.length)||(s.metas&&s.metas.length)));}
+
+async function activarSync(){
+  sync={codigo:nuevoCodigo(),ultima:null};guardarSync();
+  await subir();
+  if(estadoNube!=='ok'){sync={codigo:null,ultima:null};guardarSync();toast('No se pudo conectar. Probá de nuevo con internet.');return;}
+  render();
+  openSheet(`<h2>Listo</h2><p class="small">Escribí este código en tu otro dispositivo, en Progreso → Ya tengo un código.</p>
+  <div class="card" style="text-align:center;font-size:1.3rem;font-weight:800;letter-spacing:.08em;padding:18px">${esc(sync.codigo)}</div>
+  <p class="small">Guardalo en algún lado. Si lo perdés en todos tus dispositivos, no hay forma de recuperar los datos de la nube.</p>
+  <button class="bigbtn" id="s-ok">Entendido</button>`);
+  $('#s-ok').onclick=closeSheet;
+}
+
+function pedirCodigo(){
+  openSheet(`<h2>Ya tengo un código</h2><p class="small">Escribí el código que te dio tu otro dispositivo.</p>
+  <label class="f" for="s-cod">Código</label><input id="s-cod" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCDE-FGHIJ-KLMNO-PQRST">
+  <button class="bigbtn" id="s-ok">Conectar</button><button class="btn" id="s-no">Cancelar</button>`);
+  $('#s-no').onclick=closeSheet;
+  $('#s-ok').onclick=async()=>{
+    const cod=normCodigo($('#s-cod').value);
+    if(cod.replace(/-/g,'').length<16){toast('Ese código está incompleto');return;}
+    let fila;
+    try{fila=await nubeLeer(cod);}catch(e){toast('No se pudo conectar. Revisá tu internet.');return;}
+    if(!fila){toast('No encontramos datos con ese código. Revisalo.');return;}
+    if(tieneDatos(S)){
+      const cuando=new Date(fila.actualizado);
+      const quedarse=await ask('Este dispositivo ya tiene datos',
+        'En la nube hay datos guardados el '+corto(cuando)+'. Si seguís, los de este dispositivo se reemplazan por los de la nube.',
+        'Usar los de la nube');
+      if(!quedarse)return;
+    }
+    sync={codigo:cod,ultima:fila.actualizado};guardarSync();
+    S=estado(fila.data);CRYPTO_UMBRAL=S.cryptoUmbral;
+    try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+    sucio=false;pintarSync('ok');closeSheet();go('home');toast('Dispositivos sincronizados');
+  };
+  setTimeout(()=>{const x=$('#s-cod');if(x)x.focus();},80);
+}
 
 const $=s=>document.querySelector(s);
 const fmt=n=>(n<0?'−':'')+'$'+Math.round(Math.abs(n)).toLocaleString('es-AR');
@@ -1112,11 +1217,29 @@ function renderHistorial(R){
   ${S.ciclo?`<button class="bigbtn" id="b-cobre">Cobré, cerrar el mes</button><button class="btn" id="b-edit">Corregir datos de este mes</button>`:`<button class="bigbtn" id="b-cobre">Cobré, armar mis sobres</button>`}
   <h3>Tus meses</h3>
   ${h.length?h.map((m,i)=>i).reverse().map(i=>{const m=h[i];return `<button class="month" data-mes="${i}"><div><b>${MESES[pd(m.inicio).getMonth()][0].toUpperCase()+MESES[pd(m.inicio).getMonth()].slice(1)} ${pd(m.inicio).getFullYear()}</b><div class="small">${corto(pd(m.inicio))} al ${corto(add(pd(m.fin),-1))}</div></div><div style="text-align:right"><b class="${m.ahorro>=0?'up':'down'}">${fmt(m.ahorro)}</b><div class="small">${m.ahorro>=0?Math.round(m.pct*100)+'% del sueldo':'en rojo'}</div></div></button>`;}).join(''):`<div class="card empty">Todavía no cerraste ningún mes.</div>`}
+  ${hayNube()?`<h3>Sincronización</h3>${vinculado()?
+    `<div class="card"><div class="row" style="border:0"><span>Estado</span><span id="sync-estado">${textoSync()}</span></div>
+     <div class="row"><span>Código</span><b style="letter-spacing:.06em">${esc(sync.codigo)}</b></div></div>
+     <p class="small">Escribí ese código en tu otro dispositivo para que vean los mismos datos.</p>
+     <button class="btn" id="b-copiar">Copiar código</button>
+     <button class="btn" id="b-desvincular" style="color:var(--neg)">Dejar de sincronizar</button>`:
+    `<p class="small" style="margin-top:0">Para ver los mismos datos en la compu y en el celular. Sin cuenta ni contraseña: este dispositivo genera un código y lo escribís en el otro.</p>
+     <button class="bigbtn" id="b-vincular">Activar sincronización</button>
+     <button class="btn" id="b-tengo">Ya tengo un código</button>`}`:''}
   <h3>Copia de seguridad</h3>
   <p class="small" style="margin-top:0">Tus datos viven en este celular. Si borrás los datos de Safari o cambiás de teléfono, se pierden. Descargá una copia cada mes.</p>
   <button class="btn" id="b-bk">Descargar copia</button>
   <button class="btn" id="b-rs">Restaurar una copia</button>
   <button class="btn" id="b-wipe" style="color:var(--neg)">Borrar todos los datos</button>`;
+  const bv=$('#b-vincular');if(bv)bv.onclick=activarSync;
+  const bt=$('#b-tengo');if(bt)bt.onclick=pedirCodigo;
+  const bcop=$('#b-copiar');if(bcop)bcop.onclick=async()=>{
+    try{await navigator.clipboard.writeText(sync.codigo);toast('Código copiado');}catch(e){toast('Copialo a mano: '+sync.codigo);}
+  };
+  const bdv=$('#b-desvincular');if(bdv)bdv.onclick=async()=>{
+    if(!await ask('¿Dejar de sincronizar?','Este dispositivo deja de mandar y recibir cambios. Los datos que ya tenés acá se quedan.','Dejar de sincronizar',true))return;
+    sync={codigo:null,ultima:null};guardarSync();estadoNube='';render();toast('Sincronización desactivada');
+  };
   $('#b-cobre').onclick=()=>go('cobre');
   document.querySelectorAll('[data-mes]').forEach(b=>b.onclick=()=>go('cierre',Number(b.dataset.mes)));
   $('#b-bk').onclick=backup;$('#b-rs').onclick=()=>$('#restore').click();
@@ -1190,10 +1313,12 @@ function closeSheet(){$('#sheet').classList.remove('open');}
 $('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 document.addEventListener('input',e=>{const el=e.target;if(!el.matches||!el.matches('input[data-money]'))return;const d=el.value.replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,10);el.value=d?Number(d).toLocaleString('es-AR'):'';});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();bajar();}});
+window.addEventListener('online',()=>{sucio?subir():bajar();});
 
 render();
 chequeoCriptoInicial();
+bajar();
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.claude){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 })();
 </script>
