@@ -1281,7 +1281,7 @@ async function pintarGrafico(box,id){
 }
 /* Precios en dólares para el gráfico, como [[fecha, precio], ...]
    - 24 h y 7 días: salen de la curva que ya vino con la lista (sin pedidos extra)
-   - 30 días y 1 año: CoinGecko y, si está limitando, Binance. Se guardan un rato. */
+   - 30 días y 1 año: Binance y, si no tiene la moneda, CoinGecko. Se guardan un rato. */
 async function preciosCr(id,rango){
   const cache=leerCacheCripto(),c=cache&&cache.coins&&cache.coins.find(x=>x.id===id);
   if((rango==='7'||rango==='1')&&c&&c.spark&&c.spark.length>24){
@@ -1292,10 +1292,13 @@ async function preciosCr(id,rango){
   const clave='mi-plata-graf-'+id+'-'+rango,vida=rango==='365'?6*36e5:36e5;
   try{const g=JSON.parse(localStorage.getItem(clave)||'null');if(g&&Date.now()-g.ts<vida)return g.p;}catch(e){}
   let p=null;
-  try{p=(await pedirCr('g:'+id+':'+rango,`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${rango}`,3e5)).prices;}catch(e){}
-  if((!p||p.length<2)&&c&&c.symbol){
+  /* primero Binance (límite muy alto); CoinGecko solo para las monedas que Binance no tiene */
+  if(c&&c.symbol){
     try{const k=await pedirCr('b:'+c.symbol+':'+rango,`https://api.binance.com/api/v3/klines?symbol=${c.symbol.toUpperCase()}USDT&interval=${rango==='365'?'1d':'4h'}&limit=${rango==='365'?365:180}`,3e5);
       if(Array.isArray(k))p=k.map(x=>[x[0],Number(x[4])]);}catch(e){}
+  }
+  if(!p||p.length<2){
+    try{p=(await pedirCr('g:'+id+':'+rango,`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${rango}`,3e5)).prices;}catch(e){}
   }
   if(!p||p.length<2)throw new Error('precios');
   const chico=p.map(x=>[x[0],Number(x[1].toPrecision(6))]);
@@ -1327,7 +1330,7 @@ function dibujarGrafico(el,p,mon,dol,rango){
     <span class="gr-et" style="bottom:0;${en(vs.indexOf(mn))}">mín ${f(mn)}</span>
     <div class="gr-tip" hidden></div>
   </div>
-  <p class="cr-src">Precios de CoinGecko${rango==='30'||rango==='365'?' o Binance':''}${mon==='ars'?` · en pesos al dólar cripto de hoy (${ars(dol)}, de DolarAPI)`:''}</p>`;
+  <p class="cr-src">Precios de ${rango==='30'||rango==='365'?'Binance o CoinGecko':'CoinGecko'}${mon==='ars'?` · en pesos al dólar cripto de hoy (${ars(dol)}, de DolarAPI)`:''}</p>`;
   const svg=el.querySelector('.gr-svg'),cruz=el.querySelector('.gr-cruz'),pt=el.querySelector('.gr-punto'),tip=el.querySelector('.gr-tip');
   const mover=e=>{
     const r=svg.getBoundingClientRect(),i=Math.round(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*(p.length-1)),x=X(i);
