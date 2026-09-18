@@ -58,33 +58,63 @@ function idiomaDe(t: string): "es" | "en" | null {
 }
 
 function limpiar(s: string): string {
-  return s.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+  return s.replace(/<!\[CDATA\[|\]\]>/g, "")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&").trim();
 }
 
-async function buscar(q: string, idioma: "es" | "en"): Promise<Nota[]> {
-  const region = idioma === "es" ? "hl=es-419&gl=AR&ceid=AR:es-419" : "hl=en-US&gl=US&ceid=US:en";
+// Lo que respondió cada fuente, para el modo diagnóstico (?debug=1)
+const diagnostico: Record<string, unknown> = {};
+const HACE_30_DIAS = Date.now() - 30 * 864e5;
+
+// Lee un RSS y arma las notas. "fuenteDe" saca el nombre del medio de cada item.
+async function leerRss(
+  nombre: string, url: string, idioma: "es" | "en",
+  fuenteDe: (tag: (n: string) => string) => string,
+): Promise<Nota[]> {
   try {
-    const r = await fetch(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&${region}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (Mi plata)" },
+    const r = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
+        "Accept-Language": idioma === "es" ? "es-AR,es;q=0.9" : "en-US,en;q=0.9",
+        // Sin esto, en algunos países Google responde con la página de aceptar cookies
+        "Cookie": "CONSENT=YES+cb; SOCS=CAI",
+      },
     });
-    if (!r.ok) return [];
     const xml = await r.text();
     const notas: Nota[] = [];
     for (const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
       const it = m[1];
       const tag = (n: string) => limpiar((it.match(new RegExp(`<${n}[^>]*>([\\s\\S]*?)</${n}>`)) || [])[1] || "");
-      const fuente = tag("source");
+      const fuente = fuenteDe(tag).replace(/ on MSN$/, "");
       let titulo = tag("title");
       if (fuente && titulo.endsWith(" - " + fuente)) titulo = titulo.slice(0, -(fuente.length + 3));
       const fecha = new Date(tag("pubDate"));
-      const url = tag("link");
-      if (titulo && url && !isNaN(fecha.getTime())) notas.push({ titulo, fuente, url, fecha: fecha.toISOString(), idioma });
+      const link = tag("link");
+      if (titulo && link && !isNaN(fecha.getTime()) && fecha.getTime() > HACE_30_DIAS) {
+        notas.push({ titulo, fuente, url: link, fecha: fecha.toISOString(), idioma });
+      }
     }
+    diagnostico[nombre] = { estado: r.status, items: notas.length, inicio: notas.length ? undefined : xml.slice(0, 200) };
     return notas;
-  } catch {
+  } catch (e) {
+    diagnostico[nombre] = { error: String(e) };
     return [];
   }
+}
+
+// Busca en Google Noticias y en Bing Noticias a la vez y junta todo
+async function buscar(nombre: string, idioma: "es" | "en"): Promise<Nota[]> {
+  const palabra = idioma === "es" ? "cripto" : "crypto";
+  const google = idioma === "es" ? "hl=es-419&gl=AR&ceid=AR:es-419" : "hl=en-US&gl=US&ceid=US:en";
+  const bing = idioma === "es" ? "setlang=es&cc=ar" : "setlang=en&cc=us";
+  const [g, b] = await Promise.all([
+    leerRss(`google_${idioma}`, `https://news.google.com/rss/search?q=${encodeURIComponent(`"${nombre}" ${palabra} when:30d`)}&${google}`, idioma, (t) => t("source")),
+    leerRss(`bing_${idioma}`, `https://www.bing.com/news/search?q=${encodeURIComponent(`"${nombre}" ${palabra}`)}&format=rss&${bing}`, idioma, (t) => t("News:Source")),
+  ]);
+  return [...g, ...b];
 }
 
 function json(cuerpo: unknown, estado = 200, extra: Record<string, string> = {}) {
@@ -128,14 +158,15 @@ Deno.serve(async (req) => {
   };
 
   // Lo que vino en la búsqueda en español pero está en inglés se guarda para después
-  const enEspanol = await buscar(`"${nombre}" cripto when:30d`, "es");
+  const enEspanol = await buscar(nombre, "es");
   const sobrantesEn = enEspanol.filter((n) => idiomaDe(n.titulo) === "en").map((n) => ({ ...n, idioma: "en" as const }));
   sumar(enEspanol.filter((n) => idiomaDe(n.titulo) === "es"));
   if (elegidas.length < 5) {
-    const enIngles = (await buscar(`"${nombre}" crypto when:30d`, "en")).filter((n) => idiomaDe(n.titulo) === "en");
+    const enIngles = (await buscar(nombre, "en")).filter((n) => idiomaDe(n.titulo) === "en");
     sumar([...enIngles, ...sobrantesEn]);
   }
 
+  if (url.searchParams.get("debug")) return json({ diagnostico, elegidas });
   // 15 minutos de caché: las noticias no cambian tan rápido y así se usa menos la función
   return json(elegidas, 200, { "Cache-Control": "public, max-age=900" });
 });
