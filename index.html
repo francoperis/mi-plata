@@ -128,12 +128,27 @@ nav button[aria-current="page"] span{background:var(--nav-on)}
 .pago button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .icos{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:16px}.icos.t3{grid-template-columns:repeat(3,1fr)}
 .icos button{background:none;border:0;padding:0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:.7rem;color:var(--muted);letter-spacing:-.01em;white-space:nowrap}
-.icos button span{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface2);color:var(--ink);display:grid;place-items:center;transition:background .15s,color .15s,transform .15s}
-.icos button[aria-pressed="true"]{color:var(--ink);font-weight:700}.icos button[aria-pressed="true"] span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.icos button:active span{transform:scale(.92)}
+.icos button span{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 16%,var(--surface2));border:1px solid color-mix(in srgb,var(--c) 38%,transparent);
+  color:color-mix(in srgb,var(--c) 82%,var(--ink));transition:background .2s,color .2s,box-shadow .2s,transform .2s}
+.icos button[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.icos button[aria-pressed="true"] span{background:var(--c);border-color:var(--c);color:var(--on);transform:scale(1.06);
+  box-shadow:0 6px 16px color-mix(in srgb,var(--c) 45%,transparent),0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent)}
+.icos button:active span{transform:scale(.9)}
+@media (prefers-reduced-motion:no-preference){.icos button.salta span{animation:salta .35s cubic-bezier(.3,1.6,.5,1)}@keyframes salta{0%{transform:scale(.85)}60%{transform:scale(1.14)}100%{transform:scale(1.06)}}}
 .chips.fila{flex-wrap:nowrap;overflow-x:auto;margin-top:16px;scrollbar-width:none}.chips.fila::-webkit-scrollbar{display:none}
-.chips.fila{gap:6px}.chips.fila .chip{flex:none;padding:8px 10px;font-size:.85rem;gap:5px}
+.chips.fila{gap:6px;justify-content:center;justify-content:safe center}.chips.fila .chip{flex:none;padding:8px 10px;font-size:.85rem;gap:5px}
 .chip.alerta[aria-pressed="true"]{background:var(--s4);border-color:var(--s4);color:#2A1A00}
+.cal{margin-top:12px;background:var(--surface2);border:1px solid var(--line);border-radius:18px;padding:10px 12px 12px}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.cal-h b{font-size:1rem}
+.cal-h button{width:34px;height:34px;border-radius:50%;border:0;background:var(--surface);color:var(--ink);display:grid;place-items:center}
+.cal-h button:disabled{opacity:.3}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-g span{font-size:.7rem;color:var(--muted);font-weight:700;padding:4px 0}
+.cal-d{height:36px;width:36px;margin:0 auto;border:0;border-radius:50%;background:none;color:var(--ink);font-weight:600;font-size:.9rem;transition:background .15s}
+.cal-d.hoy{box-shadow:inset 0 0 0 1.5px var(--s2);color:var(--s2)}
+.cal-d[aria-pressed="true"]{background:var(--ink);color:var(--bg);box-shadow:none}
+.cal-d:disabled{opacity:.28}
 .sr-date{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:9px 13px;font-size:.93rem;display:inline-flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -336,11 +351,15 @@ const ICO={
  cross:'<path d="M6 6l12 12M18 6L6 18"/>',
  piggy:'<path d="M4 12.5c0-3.6 3.2-6.5 8-6.5s8 2.4 8 6a4 4 0 0 1-1.2 2.9c-.3 3-2.8 5.1-6.8 5.1-4.5 0-8-2.7-8-6Z"/><path d="M7 12.4v1.8M20 11l1.6-.8"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/>',
+ chev:'<path d="M9 6l6 6-6 6"/>',
  down:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 11v6h-6"/>',
  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M8.5 16a5.5 5.5 0 0 1 7 0"/><path d="M12 19.4v.1"/>',
  bag:'<path d="M5.5 8h13l1 12H4.5l1-12Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
 };
 const TIPOICO={luz:'bulb',tel:'wifi',otra:'bag'};
+const CATCOLOR={super:'#10C9A3',transporte:'#3F7BFF',comida:'#FF7A45',salidas:'#8C5CF7',salud:'#F2557A',otro:'#FFB524'};
+const TIPOCOLOR={luz:'#FFB524',tel:'#3F7BFF',otra:'#8C9BB0'};
+const colorIco=c=>`--c:${c};--on:${c==='#FFB524'?'#2A1A00':'#fff'}`;
 const CATICO={super:'cart',transporte:'bus',comida:'bowl',salidas:'glass',salud:'heart',otro:'pencil'};
 const ico=(n,s,w)=>ICO[n]?`<svg class="ico" viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="${w||1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`:'';
 const TIPOS=[['luz','Luz'],['tel','Teléfono e internet'],['otra','Otra cosa']];
@@ -935,6 +954,20 @@ function fondoAtras(abrir){
   const pn=$('#panel');pn.style.animation='none';
   pn.animate([{transform:'translateY(100%)'},{transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
+/* Calendario con el diseño de la app. Los días futuros no se pueden elegir. */
+function calendario(cont,valor,elegir){
+  const h=hoyD(),sel=valor?pd(valor):h;let y=sel.getFullYear(),m=sel.getMonth();
+  const pintar=()=>{
+    const primero=new Date(y,m,1),dias=new Date(y,m+1,0).getDate(),corre=(primero.getDay()+6)%7;
+    const esteMes=y===h.getFullYear()&&m===h.getMonth();
+    let g='LMMJVSD'.split('').map(d=>`<span>${d}</span>`).join('')+'<i></i>'.repeat(corre);
+    for(let d=1;d<=dias;d++){const f=iso(new Date(y,m,d));g+=`<button class="cal-d ${f===iso(h)?'hoy':''}" data-f="${f}" aria-pressed="${f===valor}" ${f>iso(h)?'disabled':''}>${d}</button>`;}
+    cont.innerHTML=`<div class="cal"><div class="cal-h"><button data-m="-1" aria-label="Mes anterior">${ico('chev',18,2.2).replace('<svg','<svg style="transform:rotate(180deg)"')}</button><b>${MESES[m][0].toUpperCase()+MESES[m].slice(1)} ${y}</b><button data-m="1" aria-label="Mes siguiente" ${esteMes?'disabled':''}>${ico('chev',18,2.2)}</button></div><div class="cal-g">${g}</div></div>`;
+    cont.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{m+=Number(b.dataset.m);if(m<0){m=11;y--;}if(m>11){m=0;y++;}pintar();});
+    cont.querySelectorAll('.cal-d').forEach(b=>b.onclick=()=>elegir(b.dataset.f));
+  };
+  pintar();
+}
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
   let cat=ed&&ed.cat||'super',medio=ed?ed.medio:(pre==='tarjeta'||pre==='luz'?'tarjeta':'plata'),tipo=ed&&ed.tipo||(pre==='luz'?'luz':'luz'),imp=!!(ed&&ed.imp);
@@ -945,14 +978,15 @@ function abrirGasto(pre,editId){
     <input id="g-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="$ 0" aria-label="Cuánto" value="${ed?miles(ed.m):''}">
     <div class="pago" id="g-medio" role="group" aria-label="Cómo pagaste"><button data-v="plata" aria-label="Plata" title="Plata">${ico('bill',22)}</button><button data-v="tarjeta" aria-label="Tarjeta" title="Tarjeta">${ico('card',22)}</button></div>
   </div>
-  <div id="g-plata"><div class="icos" id="g-cat" role="group" aria-label="En qué">${CATS.map(c=>`<button data-v="${c[0]}"><span>${ico(CATICO[c[0]],21)}</span>${c[1]}</button>`).join('')}</div></div>
-  <div id="g-tarj" hidden><div class="icos t3" id="g-tipo" role="group" aria-label="Qué pagaste con la tarjeta">${TIPOS.map(c=>`<button data-v="${c[0]}"><span>${ico(TIPOICO[c[0]],21)}</span>${c[0]==='tel'?'Teléfono':c[1]}</button>`).join('')}</div>
+  <div id="g-plata"><div class="icos" id="g-cat" role="group" aria-label="En qué">${CATS.map(c=>`<button data-v="${c[0]}" style="${colorIco(CATCOLOR[c[0]])}"><span>${ico(CATICO[c[0]],21)}</span>${c[1]}</button>`).join('')}</div></div>
+  <div id="g-tarj" hidden><div class="icos t3" id="g-tipo" role="group" aria-label="Qué pagaste con la tarjeta">${TIPOS.map(c=>`<button data-v="${c[0]}" style="${colorIco(TIPOCOLOR[c[0]])}"><span>${ico(TIPOICO[c[0]],21)}</span>${c[0]==='tel'?'Teléfono':c[1]}</button>`).join('')}</div>
     <div class="warn" id="g-warn" hidden>La tarjeta es solo para los fijos. Si podés, pagalo con la plata del sobre.</div></div>
   <div class="chips fila" id="g-fecha">
     <button class="chip" data-f="${hoy}">Hoy</button><button class="chip" data-f="${ayer}">Ayer</button>
     <button class="chip" id="g-otro">${ico('calendar',16)}<span>Otro día</span></button>
     <button class="chip alerta" id="g-imp">${ico('alert',16)}Imprevisto</button>
   </div>
+  <div id="g-cal" hidden></div>
   <input id="g-f" class="sr-date" type="date" tabindex="-1" aria-label="Fecha" value="${ed?ed.f:hoy}">
   <div id="g-notaw" hidden><p class="small" style="margin:12px 0 0">Sale del sobre libre, no del de esta semana.</p><label class="f" for="g-nota">¿Qué pasó?</label><input id="g-nota" type="text" maxlength="60" placeholder="Remedio, arreglo, regalo…" value="${ed&&ed.nota?esc(ed.nota):''}"></div>
   <button class="bigbtn" id="g-ok">${ed?'Guardar cambios':'Anotar'}</button>
@@ -968,14 +1002,20 @@ function abrirGasto(pre,editId){
     $('#g-notaw').hidden=!(imp&&medio==='plata');
   };
   document.querySelectorAll('#g-medio button').forEach(b=>b.onclick=()=>{medio=b.dataset.v;paint();});
-  document.querySelectorAll('#g-cat button').forEach(b=>b.onclick=()=>{cat=b.dataset.v;paint();});
-  document.querySelectorAll('#g-tipo button').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();});
+  const salta=b=>{b.classList.remove('salta');void b.offsetWidth;b.classList.add('salta');};
+  document.querySelectorAll('#g-cat button').forEach(b=>b.onclick=()=>{cat=b.dataset.v;paint();salta(b);});
+  document.querySelectorAll('#g-tipo button').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();salta(b);});
   ligarFecha('g-fecha','#g-f');
   /* "Otro día" abre el calendario del celu; si la fecha elegida no es hoy ni ayer, la muestra */
   const fi=$('#g-f'),otro=$('#g-otro');
   const pintarOtro=()=>{const v=fi.value,es=!!v&&v!==hoy&&v!==ayer;otro.setAttribute('aria-pressed',es);otro.lastChild.textContent=es?corto(pd(v)):'Otro día';};
   fi.addEventListener('change',pintarOtro);document.querySelectorAll('#g-fecha .chip[data-f]').forEach(b=>b.addEventListener('click',pintarOtro));pintarOtro();
-  otro.onclick=()=>{try{fi.showPicker();}catch(e){fi.focus();fi.click();}};
+  const cal=$('#g-cal');
+  otro.onclick=()=>{
+    if(!cal.hidden){cal.hidden=true;return;}
+    calendario(cal,fi.value,f=>{fi.value=f;fi.dispatchEvent(new Event('change'));cal.hidden=true;});cal.hidden=false;
+  };
+  document.querySelectorAll('#g-fecha .chip[data-f]').forEach(b=>b.addEventListener('click',()=>{cal.hidden=true;}));
   $('#g-imp').onclick=()=>{imp=!imp;paint();if(imp)setTimeout(()=>{const n=$('#g-nota');if(n)n.focus();},50);};
   $('#g-no').onclick=cerrarHoja;
   const gd=$('#g-del');if(gd)gd.onclick=async()=>{
