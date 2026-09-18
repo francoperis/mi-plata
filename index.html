@@ -152,6 +152,53 @@ nav button[aria-current="page"] span{background:var(--nav-on)}
 .cal-d[aria-pressed="true"]{background:var(--ink);color:var(--bg);box-shadow:none}
 .cal-d:disabled{opacity:.28}
 .cr-top{padding:4px 12px}
+.cr-top .cr-item{border-top:1px solid var(--line)}.cr-top .cr-item:first-child{border-top:0}
+.cr-row{width:100%;background:none;border:0;font:inherit;text-align:left;cursor:pointer}
+.cr-row>svg:last-child{flex:none;color:var(--muted);transition:transform .3s}
+.cr-item[data-abierto="n"] .cr-row>svg:last-child,.cr-item[data-abierto="c"] .cr-row>svg:last-child{transform:rotate(90deg)}
+.cr-acc{display:flex;gap:8px;margin-top:12px}
+.cr-acc button{flex:1;height:42px;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:13px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font-weight:700;font-size:.88rem;transition:background .2s,color .2s,box-shadow .2s,transform .15s}
+.cr-acc button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.cr-acc button:active{transform:scale(.97)}
+.cr-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.3,.9,.3,1)}.cr-panel.op{grid-template-rows:1fr}
+.cr-in{overflow:hidden;min-height:0}.cr-box{padding:12px 0 4px}.cr-top .cr-box{padding-top:0;padding-bottom:12px}.cr-top .cr-acc{margin-top:0}
+.cr-cont{margin-top:10px}.cr-cont>*{animation:crAparece .35s ease-out both}
+@keyframes crAparece{from{opacity:0;transform:translateY(6px)}}
+.cr-cargando i{display:block;height:48px;border-radius:12px;margin-bottom:8px;background:linear-gradient(90deg,var(--surface2) 25%,var(--line) 50%,var(--surface2) 75%);background-size:200% 100%;animation:crBrillo 1.2s linear infinite}
+.gr-skel i{height:180px}
+@keyframes crBrillo{to{background-position:-200% 0}}
+.nota{display:flex;align-items:center;gap:11px;padding:10px 2px;border-top:1px solid var(--line);color:inherit;text-decoration:none;animation:crAparece .35s ease-out both;animation-delay:calc(var(--i)*70ms)}.nota:first-child{border-top:0}
+.nota-f{width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 65% 55%),hsl(calc(var(--h) + 30) 60% 42%))}
+.nota-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.nota-t b{font-size:.9rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nota-t small{font-size:.75rem;color:var(--muted)}
+.nota-t em{font-style:normal;font-weight:800;font-size:.62rem;letter-spacing:.04em;padding:1px 5px;border-radius:5px;border:1px solid var(--line);margin-left:6px;vertical-align:1px}
+.nota>svg{flex:none;color:var(--muted)}
+.cr-src{font-size:.74rem;color:var(--muted);margin:8px 0 0}.cr-vacio{font-size:.88rem;color:var(--muted);margin:6px 0}
+.gr-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gr-rg{display:flex;gap:2px;background:var(--surface2);border-radius:99px;padding:3px}
+.gr-rg button,.gr-mon button{border:0;background:none;border-radius:99px;padding:6px 9px;font-size:.74rem;font-weight:700;color:var(--muted);white-space:nowrap;transition:background .2s,color .2s}
+.gr-rg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.gr-mon{display:flex;background:var(--surface2);border-radius:99px;padding:3px;flex:none}
+.gr-mon button[aria-pressed="true"]{background:var(--s1);color:#04342C}
+.gr-precio{display:flex;align-items:baseline;gap:9px;margin:14px 0 2px}
+.gr-precio b{font-size:1.6rem;font-weight:800;letter-spacing:-.03em}
+.gr-cambio{font-weight:800;font-size:.85rem;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.gr-wrap{position:relative;padding:20px 0}
+.gr-sube{--gc:var(--pos)}.gr-baja{--gc:var(--neg)}
+.gr-svg{display:block;touch-action:pan-y;overflow:visible;cursor:crosshair}
+.gr-c1{stop-color:var(--gc);stop-opacity:.35}.gr-c2{stop-color:var(--gc);stop-opacity:0}
+.gr-guia{stroke:var(--line);stroke-dasharray:3 5}
+.gr-linea{fill:none;stroke:var(--gc);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:grDibuja 1.1s cubic-bezier(.3,.8,.3,1) forwards}
+@keyframes grDibuja{to{stroke-dashoffset:0}}
+.gr-area{animation:crAparece .9s .25s ease-out both}
+.gr-fin{fill:var(--gc);stroke:var(--surface);stroke-width:2.5;animation:crAparece .4s .9s both}
+.gr-cruz{stroke:var(--muted);stroke-dasharray:2 3}
+.gr-punto{fill:var(--gc);stroke:var(--surface);stroke-width:3}
+.gr-et{position:absolute;font-size:.7rem;color:var(--muted);white-space:nowrap}
+.gr-tip{position:absolute;top:-8px;background:var(--ink);color:var(--bg);border-radius:11px;padding:5px 10px;font-size:.7rem;text-align:center;pointer-events:none;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.3);z-index:2}
+.gr-tip b{display:block;font-size:.88rem}
+@media (prefers-reduced-motion:reduce){.gr-linea{animation:none;stroke-dashoffset:0}.nota,.cr-cont>*,.gr-area,.gr-fin{animation:none}.cr-panel{transition:none}}
 .cr-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}.cr-row:first-child{border-top:0}
 .cr-n{width:16px;font-size:.78rem;color:var(--muted);text-align:right;flex:none}
 .cr-row img,.cr-row>i{width:28px;height:28px;border-radius:50%;flex:none;background:var(--surface2)}
@@ -360,6 +407,8 @@ const ICO={
  piggy:'<path d="M4 12.5c0-3.6 3.2-6.5 8-6.5s8 2.4 8 6a4 4 0 0 1-1.2 2.9c-.3 3-2.8 5.1-6.8 5.1-4.5 0-8-2.7-8-6Z"/><path d="M7 12.4v1.8M20 11l1.6-.8"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/>',
  chev:'<path d="M9 6l6 6-6 6"/>',
+ news:'<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 8.5h10M7 12h10M7 15.5h6"/>',
+ chart:'<path d="M3 17l5-5.5 4 3.5 8-8.5"/><path d="M15 6.5h5v5"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
  down:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 11v6h-6"/>',
  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M8.5 16a5.5 5.5 0 0 1 7 0"/><path d="M12 19.4v.1"/>',
@@ -1151,17 +1200,118 @@ function pintarListaCripto(){
   box.innerHTML=(act!=null?`<p class="small">Actualizado hace ${act<1?'un momento':act+' min'}${cache.parcial?' · última copia guardada':''}</p>`:'')+
    `<h3>En baja esta semana</h3>`+
    (bajaron.length?bajaron.map(c=>{
-     const q=encodeURIComponent(c.name+' criptomoneda noticias');
-     return `<div class="crypto-card"><div class="h"><span class="nm">${c.image?`<img src="${c.image}" alt="">`:''}${esc(c.name)} <span class="small">${esc((c.symbol||'').toUpperCase())}</span></span><span class="pct">${pctTxt(c.d7)} <small>(7d)</small></span></div>
+     return `<div class="crypto-card cr-item" data-id="${esc(c.id)}" data-nm="${esc(c.name)}" data-sb="${esc(c.symbol||'')}"><div class="h"><span class="nm">${c.image?`<img src="${c.image}" alt="">`:''}${esc(c.name)} <span class="small">${esc((c.symbol||'').toUpperCase())}</span></span><span class="pct">${pctTxt(c.d7)} <small>(7d)</small></span></div>
      <div class="sub">Precio: ${usd(c.precio)} · 24 h: ${pctTxt(c.d24)} · 30 días: ${pctTxt(c.d30)}</div>
-     <div class="links"><a href="https://news.google.com/search?q=${q}&hl=es-419" target="_blank" rel="noopener">Ver noticias</a><a href="https://www.coingecko.com/es/monedas/${c.id}" target="_blank" rel="noopener">Ver gráfico</a></div></div>`;
+     ${tabsCr()}<div class="cr-panel"><div class="cr-in"><div class="cr-box"><div class="cr-cont"></div></div></div></div></div>`;
    }).join(''):`<div class="hint" style="margin-top:0">Ninguna de las principales ${cache.coins.length} monedas bajó más de ${CRYPTO_UMBRAL}% esta semana.</div>`)+
    `<h3>Las 10 más conocidas</h3>
-   <div class="card cr-top">${top.map((c,i)=>`<a class="cr-row" href="https://www.coingecko.com/es/monedas/${c.id}" target="_blank" rel="noopener">
+   <div class="card cr-top">${top.map((c,i)=>`<div class="cr-item" data-id="${esc(c.id)}" data-nm="${esc(c.name)}" data-sb="${esc(c.symbol||'')}"><button class="cr-row">
      <span class="cr-n">${i+1}</span>${c.image?`<img src="${c.image}" alt="">`:'<i></i>'}
      <span class="cr-nm"><b>${esc(c.name)}</b><small>${esc((c.symbol||'').toUpperCase())}</small></span>
-     <span class="cr-pr"><b>${usd(c.precio)}</b><small><span class="${pctCls(c.d24)}">${pctTxt(c.d24)}</span> hoy · <span class="${pctCls(c.d7)}">${pctTxt(c.d7)}</span> 7d</small></span></a>`).join('')}</div>
-   <p class="small">Ordenadas por tamaño de mercado, sin contar las monedas atadas al dólar. Tocá una para ver su gráfico.</p>`;
+     <span class="cr-pr"><b>${usd(c.precio)}</b><small><span class="${pctCls(c.d24)}">${pctTxt(c.d24)}</span> hoy · <span class="${pctCls(c.d7)}">${pctTxt(c.d7)}</span> 7d</small></span>${ico('chev',16)}</button>
+     <div class="cr-panel"><div class="cr-in"><div class="cr-box">${tabsCr()}<div class="cr-cont"></div></div></div></div></div>`).join('')}</div>
+   <p class="small">Ordenadas por tamaño de mercado, sin contar las monedas atadas al dólar. Tocá una para ver su gráfico y noticias.</p>`;
+  box.querySelectorAll('.cr-item').forEach(it=>{
+    it.querySelectorAll('.cr-acc button').forEach(b=>b.onclick=()=>toggleCr(it,b.dataset.k));
+    const fila=it.querySelector('.cr-row');if(fila)fila.onclick=()=>toggleCr(it,it.dataset.abierto||'c');
+  });
+}
+/* ---------- Noticias y gráfico de cada cripto, adentro de su tarjeta ---------- */
+const DOLAR_KEY='mi-plata-dolar',MONEDA_KEY='mi-plata-moneda';
+let monedaCr='usd',rangoCr='7';
+try{monedaCr=localStorage.getItem(MONEDA_KEY)||'usd';}catch(e){}
+const cacheCr={};
+async function pedirCr(clave,url,vida){
+  const c=cacheCr[clave];if(c&&Date.now()-c.ts<vida)return c.v;
+  const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);
+  const v=await r.json();cacheCr[clave]={ts:Date.now(),v};return v;
+}
+/* Dólar cripto (el de los exchanges argentinos), guardado una hora */
+async function dolarCripto(){
+  try{const d=JSON.parse(localStorage.getItem(DOLAR_KEY)||'null');if(d&&Date.now()-d.ts<36e5)return d.v;}catch(e){}
+  const v=Number((await pedirCr('dolar','https://dolarapi.com/v1/dolares/cripto',36e5)).venta);
+  if(!v)throw new Error('sin dólar');
+  try{localStorage.setItem(DOLAR_KEY,JSON.stringify({v,ts:Date.now()}));}catch(e){}
+  return v;
+}
+const ars=n=>'$ '+n.toLocaleString('es-AR',{maximumFractionDigits:n<100?2:0});
+const hace=f=>{const m=Math.round((Date.now()-new Date(f))/60000);return m<60?'hace '+Math.max(1,m)+' min':m<1440?'hace '+Math.round(m/60)+' h':m<2880?'ayer':'hace '+Math.round(m/1440)+' días';};
+const tono=s=>[...String(s)].reduce((a,c)=>a*31+c.charCodeAt(0)|0,7)%360;
+function tabsCr(){return `<div class="cr-acc"><button data-k="n" aria-pressed="false">${ico('news',17)}Noticias</button><button data-k="c" aria-pressed="false">${ico('chart',17)}Gráfico</button></div>`;}
+function toggleCr(it,k){
+  const nuevo=it.dataset.abierto===k?'':k;it.dataset.abierto=nuevo;
+  it.querySelectorAll('.cr-acc button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.k===nuevo)));
+  const panel=it.querySelector('.cr-panel');
+  if(!nuevo){panel.classList.remove('op');return;}
+  const box=it.querySelector('.cr-cont');
+  if(nuevo==='n')pintarNoticias(box,it.dataset.nm,it.dataset.sb);else pintarGrafico(box,it.dataset.id);
+  panel.classList.add('op');
+}
+async function pintarNoticias(box,nombre,simbolo){
+  box.innerHTML=`<div class="cr-cargando"><i></i><i></i><i></i></div>`;
+  try{
+    const notas=await pedirCr('n:'+nombre,API('/functions/v1/noticias?q='+encodeURIComponent(nombre)+'&s='+encodeURIComponent(simbolo)),9e5);
+    if(!box.isConnected)return;
+    box.innerHTML=notas.length?`<div class="cr-notas">${notas.map((n,i)=>`<a class="nota" href="${esc(n.url)}" target="_blank" rel="noopener" style="--i:${i}">
+      <span class="nota-f" style="--h:${tono(n.fuente)}">${esc((n.fuente||'?').replace(/^www\./,'')[0].toUpperCase())}</span>
+      <span class="nota-t"><b>${esc(n.titulo)}</b><small>${esc(n.fuente)} · ${hace(n.fecha)}${n.idioma==='en'?'<em>EN</em>':''}</small></span>${ico('chev',16)}</a>`).join('')}</div>
+      <p class="cr-src">Titulares de Google Noticias, sin repetidos. Tocá uno para leer la nota.</p>`
+      :`<p class="cr-vacio">No encontramos noticias recientes de ${esc(nombre)}.</p>`;
+  }catch(e){if(box.isConnected)box.innerHTML=`<p class="cr-vacio">No pudimos traer noticias ahora. Probá de nuevo en un rato.</p>`;}
+}
+async function pintarGrafico(box,id){
+  box.innerHTML=`<div class="gr-top"><div class="gr-rg">${[['1','24 h'],['7','7 días'],['30','30 días'],['365','1 año']].map(r=>`<button data-r="${r[0]}" aria-pressed="${rangoCr===r[0]}">${r[1]}</button>`).join('')}</div>
+    <div class="gr-mon" role="group" aria-label="Moneda"><button data-m="usd" aria-pressed="${monedaCr==='usd'}">US$</button><button data-m="ars" aria-pressed="${monedaCr==='ars'}">ARS</button></div></div>
+    <div class="gr-cuerpo"><div class="cr-cargando gr-skel"><i></i></div></div>`;
+  box.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rangoCr=b.dataset.r;pintarGrafico(box,id);});
+  box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{monedaCr=b.dataset.m;try{localStorage.setItem(MONEDA_KEY,monedaCr);}catch(e){}pintarGrafico(box,id);});
+  const cuerpo=box.querySelector('.gr-cuerpo'),rango=rangoCr,mon=monedaCr;
+  try{
+    const [d,dol]=await Promise.all([
+      pedirCr('g:'+id+':'+rango,`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${rango}`,3e5),
+      mon==='ars'?dolarCripto():Promise.resolve(1)]);
+    if(!cuerpo.isConnected)return;
+    let p=d.prices||[];const paso=Math.max(1,Math.ceil(p.length/140));
+    p=p.filter((x,i)=>i%paso===0||i===p.length-1).map(x=>[x[0],x[1]*dol]);
+    if(p.length<2)throw new Error('sin datos');
+    dibujarGrafico(cuerpo,p,mon,dol,rango);
+  }catch(e){if(cuerpo.isConnected)cuerpo.innerHTML=`<p class="cr-vacio">No pudimos traer el gráfico ahora${mon==='ars'?' (o la cotización del dólar)':''}. Probá de nuevo en un rato.</p>`;}
+}
+function dibujarGrafico(el,p,mon,dol,rango){
+  const W=Math.max(240,Math.round(el.clientWidth||300)),H=150,pad=10;
+  const vs=p.map(x=>x[1]),mn=Math.min(...vs),mx=Math.max(...vs),cambio=(vs[vs.length-1]-vs[0])/vs[0]*100;
+  const baja=cambio<0,f=mon==='ars'?ars:usd,gid='gr'+Math.random().toString(36).slice(2,8);
+  const X=i=>i/(p.length-1)*W,Y=v=>pad+(mx-v)/((mx-mn)||1)*(H-pad*2);
+  const d=vs.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join('');
+  /* las etiquetas se corren según dónde cae el punto, para no salirse del borde */
+  const pos=i=>X(i)/W*100,en=i=>`left:${pos(i)}%;transform:translateX(-${pos(i)}%)`;
+  const cuando=t=>{const dt=new Date(t),h=dt.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}),dia=dt.getDate()+' '+MESES[dt.getMonth()].slice(0,3);
+    return rango==='1'?h+' h':rango==='7'?dia+' · '+h+' h':rango==='30'?dia:dia+' '+dt.getFullYear();};
+  el.innerHTML=`<div class="gr-precio"><b>${f(vs[vs.length-1])}</b><span class="gr-cambio ${baja?'baja':'sube'}">${pctTxt(cambio)}</span></div>
+  <div class="gr-wrap ${baja?'gr-baja':'gr-sube'}">
+    <span class="gr-et" style="top:0;${en(vs.indexOf(mx))}">máx ${f(mx)}</span>
+    <svg class="gr-svg" viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" aria-label="Gráfico de precio">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="gr-c1"/><stop offset="1" class="gr-c2"/></linearGradient></defs>
+      ${[.25,.5,.75].map(k=>`<line x1="0" x2="${W}" y1="${H*k}" y2="${H*k}" class="gr-guia"/>`).join('')}
+      <path d="${d}L${W} ${H}L0 ${H}Z" fill="url(#${gid})" class="gr-area"/>
+      <path d="${d}" class="gr-linea" pathLength="1"/>
+      <line class="gr-cruz" y1="0" y2="${H}" x1="-20" x2="-20"/>
+      <circle class="gr-fin" cx="${X(vs.length-1)}" cy="${Y(vs[vs.length-1])}" r="4"/>
+      <circle class="gr-punto" r="5" cx="-20" cy="-20"/>
+    </svg>
+    <span class="gr-et" style="bottom:0;${en(vs.indexOf(mn))}">mín ${f(mn)}</span>
+    <div class="gr-tip" hidden></div>
+  </div>
+  <p class="cr-src">Precios de CoinGecko${mon==='ars'?` · en pesos al dólar cripto de hoy (${ars(dol)}, de DolarAPI)`:''}</p>`;
+  const svg=el.querySelector('.gr-svg'),cruz=el.querySelector('.gr-cruz'),pt=el.querySelector('.gr-punto'),tip=el.querySelector('.gr-tip');
+  const mover=e=>{
+    const r=svg.getBoundingClientRect(),i=Math.round(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*(p.length-1)),x=X(i);
+    cruz.setAttribute('x1',x);cruz.setAttribute('x2',x);pt.setAttribute('cx',x);pt.setAttribute('cy',Y(vs[i]));
+    tip.hidden=false;tip.innerHTML=`<b>${f(vs[i])}</b>${cuando(p[i][0])}`;tip.style.cssText=en(i);
+  };
+  const soltar=()=>{tip.hidden=true;[cruz,pt].forEach(n=>{n.setAttribute(n===pt?'cx':'x1',-20);if(n===cruz)n.setAttribute('x2',-20);});};
+  svg.addEventListener('pointermove',mover);svg.addEventListener('pointerdown',mover);
+  svg.addEventListener('pointerleave',soltar);svg.addEventListener('pointercancel',soltar);
 }
 async function actualizarCripto(manual){
   if(manual){guardarCacheCripto(Object.assign(leerCacheCripto()||{},{buscando:true}));pintarListaCripto();}
