@@ -73,7 +73,7 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .btn{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:600;background:var(--surface)}
 .back{background:none;border:0;padding:6px 0;font-weight:600;color:var(--muted)}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}
-nav div{display:grid;grid-template-columns:1.5fr 1.5fr 64px 1fr 1fr 1fr;max-width:460px;width:100%}
+nav div{display:grid;grid-template-columns:1fr 1fr 72px 1fr 1fr;max-width:460px;width:100%}
 /* botón central para anotar: sobresale del navbar sobre una montañita */
 nav .fabw{position:relative;display:flex;justify-content:center;align-items:flex-start}
 nav .fabw svg.hill{position:absolute;top:-38px;left:50%;transform:translateX(-50%);width:150px;height:39px;overflow:visible;pointer-events:none}
@@ -121,6 +121,8 @@ nav button[aria-current="page"] span{background:var(--nav-on)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 /* formulario de gasto compacto */
 .shead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.shead h2{margin:0}
+.avatar{width:40px;height:40px;flex:none;border-radius:50%;border:0;padding:0;overflow:hidden;background:var(--surface2);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:.9rem;box-shadow:0 0 0 2px var(--line)}
+.avatar img{width:100%;height:100%;object-fit:cover}
 .xbtn{width:36px;height:36px;flex:none;border-radius:50%;border:0;background:var(--surface2);color:var(--muted);display:grid;place-items:center}
 .frow{display:flex;gap:8px;align-items:stretch}.frow input.big{flex:1;min-width:0;margin:0}
 .pago{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--surface2)}
@@ -329,7 +331,6 @@ nav button[aria-current="page"]{color:var(--ink)}
     <button class="fab" id="nav-plus" aria-label="Anotar gasto"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
   <button data-go="invertir"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c0-3.5-2.5-6-7-6 0 4 2 6.5 7 6Z"/><path d="M12 11c0-4 2.8-7 7-7 0 4.5-2.2 7.3-7 7Z"/></svg></span>Invertir<i class="ping" id="nav-ping" hidden></i></button>
   <button data-go="misiones"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>Misiones</button>
-  <button data-go="historial"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Progreso</button>
 </div></nav>
 <div class="toast" id="toast" role="status"></div>
 <div class="sheet" id="sheet"><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
@@ -359,6 +360,7 @@ const ICO={
  piggy:'<path d="M4 12.5c0-3.6 3.2-6.5 8-6.5s8 2.4 8 6a4 4 0 0 1-1.2 2.9c-.3 3-2.8 5.1-6.8 5.1-4.5 0-8-2.7-8-6Z"/><path d="M7 12.4v1.8M20 11l1.6-.8"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/>',
  chev:'<path d="M9 6l6 6-6 6"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
  down:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 11v6h-6"/>',
  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M8.5 16a5.5 5.5 0 0 1 7 0"/><path d="M12 19.4v.1"/>',
  bag:'<path d="M5.5 8h13l1 12H4.5l1-12Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
@@ -453,6 +455,18 @@ const hayNube=()=>!!(NUBE.url&&NUBE.key);
 const vinculado=()=>hayNube()&&!!auth;
 const API=p=>NUBE.url.replace(/\/$/,'')+p;
 function guardarAuth(){try{if(auth)localStorage.setItem(AUTH_KEY,JSON.stringify(Object.assign(auth,{ultima})));else localStorage.removeItem(AUTH_KEY);}catch(e){}}
+/* Nombre y foto de la cuenta de Google, leídos de la sesión */
+function perfil(){
+  if(!auth)return null;
+  try{const j=JSON.parse(atob(auth.access.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))),u=j.user_metadata||{};
+    return {foto:u.avatar_url||u.picture||'',nombre:u.full_name||u.name||auth.email||''};}catch(e){return {foto:'',nombre:auth.email||''};}
+}
+function botonPerfil(){
+  const p=perfil();
+  const ini=p&&p.nombre?p.nombre.split(/[\s@.]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join(''):'';
+  const cara=p&&p.foto?`<img src="${esc(p.foto)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith('${ini}')">`:ini?ini:ico('user',20);
+  return `<button class="avatar" id="b-perfil" aria-label="Progreso y ajustes">${cara}</button>`;
+}
 function sesionDe(o){
   let email=o.user&&o.user.email||'';
   if(!email){try{email=JSON.parse(atob(o.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email||'';}catch(e){}}
@@ -718,6 +732,8 @@ $('#nav-plus').onclick=()=>{
 let introHecho=false,lastView='',counts={};
 const reduceMotion=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function postRender(){
+  const bp=$('#b-perfil');if(bp)bp.onclick=()=>go('historial');
+  const bv=$('#b-volver');if(bv)bv.onclick=()=>go('home');
   const R=$('#root');
   if(view!==lastView){R.classList.remove('enter');void R.offsetWidth;R.classList.add('enter');lastView=view;}
   document.querySelectorAll('[data-count]').forEach(el=>{
@@ -734,7 +750,7 @@ function render(){
   renderInner();postRender();
 }
 function renderInner(){
-  const nav={home:'home',sobre:'home',tarjeta:'tarjeta',historial:'historial',cierre:'historial',cobre:'historial',invertir:'invertir',misiones:'misiones',meta:'misiones'}[view];
+  const nav={home:'home',sobre:'home',tarjeta:'tarjeta',historial:'home',cierre:'home',cobre:'home',invertir:'invertir',misiones:'misiones',meta:'misiones'}[view];
   document.querySelectorAll('[data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===nav?'page':'false'));
   const R=$('#root');
   const puerta=hayNube()&&!vinculado()&&!sinCuenta();
@@ -771,7 +787,7 @@ function renderLogin(R){
 }
 function renderBienvenida(R){
   R.innerHTML=`
-  <div class="top"><h1>Mi plata</h1></div><div class="small">${largo(hoyD())}</div>
+  <div class="top"><h1>Mi plata</h1>${botonPerfil()}</div><div class="small">${largo(hoyD())}</div>
   <h2 style="margin-top:24px;font-size:2rem">Tu sueldo, en sobres</h2>
   <p>El día que cobrás, la app separa tu plata en cuatro sobres que van de menor a mayor. Cada día te dice cuánto podés gastar, y lo que no gastes va a tu alcancía.</p>
   <div class="envs"><div><span>Semana 1</span><b>15%</b></div><div><span>Semana 2</span><b>20%</b></div><div><span>Semana 3</span><b>25%</b></div><div><span>Sobre libre</span><b>40%</b></div></div>
@@ -812,7 +828,7 @@ function renderHome(R){
   }
   const top=4*54;
   R.innerHTML=`
-  <div class="top"><h1>Mi plata</h1></div>
+  <div class="top"><h1>Mi plata</h1>${botonPerfil()}</div>
   <div class="small">${largo(t)}</div>
   <div class="stack ${introHecho?'':'intro'}" style="height:${top+198}px">
     ${r.ws.map(stackCard).join('')}
@@ -1459,6 +1475,7 @@ function renderHistorial(R){
   const prom=h.length?h.reduce((a,m)=>a+m.ahorro,0)/h.length:0;
   const pendientes=h.filter(m=>m.ahorro>0&&!m.transferido);
   R.innerHTML=`
+  <button class="back" id="b-volver">‹ Hoy</button>
   <div class="top"><h1>Progreso</h1></div>
   <div class="savings"><div>Ahorrado desde que empezaste</div>
   <div class="amount">${fmt(totalCerrado+actual)}</div>
