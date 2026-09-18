@@ -759,6 +759,14 @@ function cambiarMonto(i){
 }
 
 /* ---------- Anotar gasto ---------- */
+/* Accesos Hoy / Ayer para un campo de fecha: se apagan si la fecha es otra */
+function chipsFecha(id){return `<div class="chips" id="${id}" style="margin-bottom:8px"><button class="chip" data-f="${iso(hoyD())}">Hoy</button><button class="chip" data-f="${iso(add(hoyD(),-1))}">Ayer</button></div>`;}
+function ligarFecha(id,campo){
+  const inp=$(campo),chips=document.querySelectorAll('#'+id+' .chip');
+  const pintar=()=>chips.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===inp.value)));
+  chips.forEach(b=>b.onclick=()=>{inp.value=b.dataset.f;pintar();});
+  inp.onchange=pintar;pintar();
+}
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
   let cat=ed&&ed.cat||'super',medio=ed?ed.medio:(pre==='tarjeta'||pre==='luz'?'tarjeta':'plata'),tipo=ed&&ed.tipo||(pre==='luz'?'luz':'luz'),imp=!!(ed&&ed.imp);
@@ -772,7 +780,7 @@ function abrirGasto(pre,editId){
   <div id="g-tarj" hidden><label class="f">¿Qué pagaste con la tarjeta?</label><div class="chips" id="g-tipo">${TIPOS.map(c=>`<button class="chip" data-v="${c[0]}">${ico(TIPOICO[c[0]],16)}${c[1]}</button>`).join('')}</div>
     <div class="warn" id="g-warn" hidden>La tarjeta es solo para los fijos. Si podés, pagalo con la plata del sobre.</div></div>
   <label class="f" for="g-f">Fecha</label>
-  <div class="chips" id="g-fecha" style="margin-bottom:8px"><button class="chip" data-f="${iso(hoyD())}">Hoy</button><button class="chip" data-f="${iso(add(hoyD(),-1))}">Ayer</button></div>
+  ${chipsFecha('g-fecha')}
   <input id="g-f" type="date" value="${ed?ed.f:iso(hoyD())}">
   <button class="bigbtn" id="g-ok">${ed?'Guardar cambios':'Anotar'}</button>
   ${ed?`<button class="btn" id="g-del" style="color:var(--neg)">Borrar gasto</button>`:''}
@@ -781,15 +789,13 @@ function abrirGasto(pre,editId){
     document.querySelectorAll('#g-medio .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===medio));
     document.querySelectorAll('#g-cat .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===cat));
     document.querySelectorAll('#g-tipo .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===tipo));
-    document.querySelectorAll('#g-fecha .chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===$('#g-f').value)));
     $('#g-plata').hidden=medio!=='plata';$('#g-tarj').hidden=medio!=='tarjeta';
     $('#g-warn').hidden=tipo!=='otra';$('#g-notaw').hidden=!imp;
   };
   document.querySelectorAll('#g-medio .chip').forEach(b=>b.onclick=()=>{medio=b.dataset.v;paint();});
   document.querySelectorAll('#g-cat .chip').forEach(b=>b.onclick=()=>{cat=b.dataset.v;paint();});
   document.querySelectorAll('#g-tipo .chip').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();});
-  document.querySelectorAll('#g-fecha .chip').forEach(b=>b.onclick=()=>{$('#g-f').value=b.dataset.f;paint();});
-  $('#g-f').onchange=paint;
+  ligarFecha('g-fecha','#g-f');
   $('#g-imp').onchange=e=>{imp=e.target.checked;paint();};
   $('#g-no').onclick=closeSheet;
   const gd=$('#g-del');if(gd)gd.onclick=async()=>{
@@ -1012,8 +1018,11 @@ function renderMetaDetalle(R){
 function abrirAporte(m){
   openSheet(`<h2>Agregar aporte</h2><p class="small">Para "${esc(m.nombre)}"</p>
   <label class="f" for="ap-m">Cuánto</label><input id="ap-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="0">
-  <label class="f" for="ap-f">Fecha</label><input id="ap-f" type="date" value="${iso(hoyD())}">
+  <label class="f" for="ap-f">Fecha</label>
+  ${chipsFecha('ap-fecha')}
+  <input id="ap-f" type="date" value="${iso(hoyD())}">
   <button class="bigbtn" id="ap-ok">Agregar</button><button class="btn" id="ap-no">Cancelar</button>`);
+  ligarFecha('ap-fecha','#ap-f');
   $('#ap-no').onclick=closeSheet;
   $('#ap-ok').onclick=()=>{
     const v=num('#ap-m');if(!v||v<=0){toast('Escribí cuánto aportaste');return;}
