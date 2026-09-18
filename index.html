@@ -126,6 +126,15 @@ label.f{display:block;font-size:.88rem;color:var(--muted);margin:14px 0 6px}
 input[type=number],input[type=text],input[type=date]{width:100%;font:inherit;font-size:1.05rem;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);color:var(--ink);-webkit-appearance:none;appearance:none;min-height:48px}
 input.big{font-size:2.1rem;font-weight:800;padding:8px 12px;letter-spacing:-.03em}
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.93rem}
+.login{min-height:calc(100vh - 150px);display:flex;flex-direction:column;justify-content:center;text-align:center;padding-top:10px}
+.login-logo{width:88px;height:88px;border-radius:24px;margin:0 auto 14px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.login h1{font-size:2.3rem;font-weight:800;letter-spacing:-.035em;margin:0}
+.login-s{color:var(--muted);margin:8px auto 22px;max-width:330px}
+.login-l{list-style:none;margin:0;padding:6px 16px;text-align:left}
+.login-l li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}.login-l li:first-child{border-top:0}
+.login-l li>svg{flex:none;margin-top:2px;color:var(--s2)}.login-l b{display:block;font-size:.95rem}.login-l span{font-size:.86rem;color:var(--muted)}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.login-p{margin:12px auto 4px;max-width:320px}
 .check input{width:22px;height:22px;margin:0;flex:none;accent-color:var(--s1)}
 .tgl{appearance:none;-webkit-appearance:none;width:50px;height:30px;margin:0;flex:none;border-radius:99px;background:var(--line);position:relative;cursor:pointer;transition:background .2s}
 .tgl::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .2s}
@@ -201,8 +210,8 @@ nav button[aria-current="page"]{color:var(--ink)}
  .front.bump{animation:bump .45s ease}
  .front.sacudon{animation:sacudon .5s ease}
  @keyframes sacudon{20%{transform:rotate(-2deg)}40%{transform:rotate(2deg) scale(.98)}60%{transform:rotate(-1.2deg)}80%{transform:rotate(.6deg)}100%{transform:none}}
- .resta{position:absolute;right:18px;top:14px;font-weight:800;font-size:1.25rem;color:var(--neg);pointer-events:none;animation:resta 1.1s ease-out forwards}
- @keyframes resta{0%{opacity:0;transform:translateY(10px)}20%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+ .resta{position:absolute;right:16px;top:46px;z-index:2;background:var(--neg);color:#fff;font-weight:800;font-size:1.4rem;letter-spacing:-.02em;padding:5px 14px;border-radius:99px;box-shadow:0 6px 16px rgba(224,65,58,.45);pointer-events:none;animation:resta 2.2s ease-out forwards}
+ @keyframes resta{0%{opacity:0;transform:scale(.5)}10%{opacity:1;transform:scale(1.12)}18%{transform:scale(1)}80%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-18px)}}
  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(.97)}70%{transform:scale(1.015)}100%{transform:scale(1)}}
  .bigbtn,.btn,.plus,.chip{transition:transform .15s ease,box-shadow .2s}
  .bigbtn:active,.btn:active,.plus:active,.chip:active{transform:scale(.96)}
@@ -468,6 +477,7 @@ function tieneDatos(s){return !!(s&&(s.ciclo||(s.historial&&s.historial.length)|
 function entrar(){
   location.href=API('/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+location.pathname));
 }
+const GLOGO='<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 /* Google vuelve a la app con la sesión en el #hash de la dirección */
 async function volverDeGoogle(){
   const h=new URLSearchParams(location.hash.slice(1));
@@ -495,8 +505,11 @@ async function volverDeGoogle(){
   toast('Listo, ya sincroniza con '+(auth.email||'tu cuenta'));
   return true;
 }
+const SIN_CUENTA='mi-plata-sin-cuenta';
+function sinCuenta(){try{return localStorage.getItem(SIN_CUENTA)==='1';}catch(e){return false;}}
 function salir(vencida){
   const tk=auth&&auth.access;
+  try{localStorage.removeItem(SIN_CUENTA);}catch(e){}
   auth=null;ultima=null;guardarAuth();estadoNube='';
   if(!vencida&&tk)fetch(API('/auth/v1/logout'),{method:'POST',headers:{apikey:NUBE.key,Authorization:'Bearer '+tk}}).catch(()=>{});
   if(vencida)toast('Se cerró tu sesión. Volvé a entrar con Google en Progreso.');
@@ -676,11 +689,38 @@ function renderInner(){
   const nav={home:'home',sobre:'home',tarjeta:'tarjeta',historial:'historial',cierre:'historial',cobre:'historial',invertir:'invertir',misiones:'misiones',meta:'misiones'}[view];
   document.querySelectorAll('[data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===nav?'page':'false'));
   const R=$('#root');
+  const puerta=hayNube()&&!vinculado()&&!sinCuenta();
+  $('#nav').style.display=puerta?'none':'';
+  if(puerta)return renderLogin(R);
   if(view==='cobre')return renderCobre(R);
   if(!S.ciclo&&(view==='home'||view==='sobre'))return renderBienvenida(R);
   ({home:renderHome,sobre:renderSobre,tarjeta:renderTarjeta,historial:renderHistorial,cierre:renderCierreGuardado,invertir:renderInvertir,misiones:renderMisiones,meta:renderMetaDetalle}[view]||renderHome)(R);
 }
 
+/* Primera pantalla: presenta la app y pide entrar con Google.
+   "Seguir sin cuenta" deja usarla solo en este dispositivo (y entrar después desde Progreso). */
+function renderLogin(R){
+  const entrando=/access_token=/.test(location.hash);
+  R.innerHTML=`<div class="login">
+  <img class="login-logo" src="/icon-192.png" alt="">
+  <h1>Mi plata</h1>
+  <p class="login-s">Tu sueldo, en sobres. Cada día sabés cuánto podés gastar, y lo que no gastás se vuelve ahorro.</p>
+  <ul class="card login-l">
+    <li>${ico('bill',20)}<div><b>Sobres por semana</b><span>El día que cobrás, tu sueldo se reparte solo.</span></div></li>
+    <li>${ico('piggy',20)}<div><b>Alcancía automática</b><span>Lo que no gastás cada día se guarda.</span></div></li>
+    <li>${ico('check',20)}<div><b>Misiones</b><span>Metas con monto, como un viaje o un fondo de emergencia.</span></div></li>
+    <li>${ico('wifi',20)}<div><b>En el celu y en la compu</b><span>Entrás con Google y ves lo mismo en todos lados.</span></div></li>
+  </ul>
+  <button class="bigbtn gbtn" id="l-google" ${entrando?'disabled':''}>${GLOGO}${entrando?'Entrando…':'Continuar con Google'}</button>
+  <p class="small login-p">Solo usamos tu nombre y tu mail para guardar tus datos en tu cuenta. Nadie más puede verlos.</p>
+  <button class="back" id="l-sin" style="margin:0 auto">Seguir sin cuenta</button>
+  </div>`;
+  $('#l-google').onclick=e=>{
+    if(!navigator.onLine){toast('Necesitás internet para entrar. Podés seguir sin cuenta y entrar después desde Progreso.');return;}
+    e.currentTarget.disabled=true;e.currentTarget.lastChild.textContent='Abriendo Google…';entrar();
+  };
+  $('#l-sin').onclick=()=>{try{localStorage.setItem(SIN_CUENTA,'1');}catch(e){}render();};
+}
 function renderBienvenida(R){
   R.innerHTML=`
   <div class="top"><h1>Mi plata</h1></div><div class="small">${largo(hoyD())}</div>
@@ -821,7 +861,7 @@ function cerrarAnotado(monto,bajaHoy){
     const fr=document.querySelector('.front');if(!fr||monto==null)return;
     if(reduceMotion()){fr.classList.add('bump');return;}
     fr.classList.remove('sacudon');void fr.offsetWidth;fr.classList.add('sacudon');
-    if(bajaHoy){const r=document.createElement('span');r.className='resta';r.textContent='−'+fmt(monto).replace('−','');fr.appendChild(r);setTimeout(()=>r.remove(),1200);}
+    if(bajaHoy){const r=document.createElement('span');r.className='resta';r.textContent='−'+fmt(monto).replace('−','');fr.appendChild(r);setTimeout(()=>r.remove(),2300);}
   };
   if(monto==null||reduceMotion()||!pn.animate)return listo();
   const a=pn.getBoundingClientRect(),b=dest?dest.getBoundingClientRect():{left:innerWidth/2-20,top:40,width:40,height:40};
@@ -832,19 +872,16 @@ function cerrarAnotado(monto,bajaHoy){
     {transform:`translate(${dx}px,${dy}px) scale(.04)`,borderRadius:'50%',opacity:0}],{duration:450,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
   an.onfinish=()=>{$('#sheet').getAnimations().forEach(x=>x.cancel());an.cancel();listo();};
 }
-/* Al tocar el +: un círculo crece desde el botón hasta cubrir la pantalla y se abre en el formulario */
+/* Al tocar el +: el formulario se abre como un círculo que crece desde el botón
+   hasta ocupar justo su lugar, con el contenido ya adentro */
 function expandirYAbrir(btn,abrir){
   if(reduceMotion()||!document.body.animate)return abrir();
   const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-  const lejos=Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy));
-  const c=document.createElement('div');
-  c.style.cssText=`position:fixed;left:${cx-30}px;top:${cy-30}px;width:60px;height:60px;border-radius:50%;background:var(--surface);z-index:11;pointer-events:none`;
-  document.body.appendChild(c);
-  const fondo=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
-  c.animate([{transform:'scale(.9)',background:'#fff'},{transform:`scale(${lejos/30+.2})`,background:fondo}],{duration:380,easing:'cubic-bezier(.5,0,.3,1)',fill:'forwards'}).onfinish=()=>{
-    abrir();
-    c.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'}).onfinish=()=>c.remove();
-  };
+  abrir();
+  const pn=$('#panel'),q=pn.getBoundingClientRect(),x=cx-q.left,y=cy-q.top;
+  const R=Math.hypot(Math.max(x,q.width-x),Math.max(y,q.height-y));
+  pn.style.animation='none';
+  pn.animate([{clipPath:`circle(30px at ${x}px ${y}px)`},{clipPath:`circle(${R}px at ${x}px ${y}px)`}],{duration:420,easing:'cubic-bezier(.4,0,.2,1)'});
 }
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
@@ -1315,7 +1352,7 @@ function renderHistorial(R){
      <p class="small">Entrá con la misma cuenta en tu otro dispositivo para ver los mismos datos.</p>
      <button class="btn" id="b-salir" style="color:var(--neg)">Cerrar sesión</button>`:
     `<p class="small" style="margin-top:0">Para ver los mismos datos en la compu y en el celular: entrá con tu cuenta de Google en los dos.</p>
-     <button class="bigbtn" id="b-google" style="display:flex;align-items:center;justify-content:center;gap:10px"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar con Google</button>`}`:''}
+     <button class="bigbtn" id="b-google" style="display:flex;align-items:center;justify-content:center;gap:10px">${GLOGO}Entrar con Google</button>`}`:''}
   <h3>Copia de seguridad</h3>
   <p class="small" style="margin-top:0">Tus datos viven en este celular. Si borrás los datos de Safari o cambiás de teléfono, se pierden. Descargá una copia cada mes.</p>
   <button class="btn" id="b-bk">Descargar copia</button>
@@ -1395,7 +1432,7 @@ function ask(titulo,texto,ok,peligro,no='Cancelar'){
     $('#q-ok').onclick=()=>{closeSheet();res(true);};$('#q-no').onclick=()=>{closeSheet();res(false);};
   });
 }
-function openSheet(html){$('#panel').innerHTML=html;$('#sheet').classList.add('open');}
+function openSheet(html){$('#panel').style.animation='';$('#panel').innerHTML=html;$('#sheet').classList.add('open');}
 function closeSheet(){$('#sheet').classList.remove('open');}
 $('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
