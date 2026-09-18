@@ -374,37 +374,53 @@ function estado(d){
 let S;
 try{S=estado(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(e){S=estado();}
 CRYPTO_UMBRAL=S.cryptoUmbral;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}sucio=true;programarSubida();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('No se pudo guardar. Descargá una copia en Progreso.');}marcarSucio(true);programarSubida();}
 
-/* ---------- Sincronización entre dispositivos ---------- */
-/* Completar con los datos del proyecto de Supabase. Vacío = la app funciona
-   solo en este dispositivo, como antes. La clave anon es pública a propósito:
-   lo que protege los datos es que la tabla solo se toca por las funciones. */
+/* ---------- Sincronización con la cuenta de Google ---------- */
+/* La clave es pública a propósito: cada persona solo puede leer y guardar
+   sus propios datos, porque las funciones de la base usan su sesión. */
 const NUBE={url:'https://mzlxxratdfcczymrgwiy.supabase.co',key:'sb_publishable_KblocqGIy84BDRJAxmEWWw_0EMXbANJ'};
-const SYNC_KEY='mi-plata-sync-v1';
-let sync={codigo:null,ultima:null};
-try{sync=Object.assign(sync,JSON.parse(localStorage.getItem(SYNC_KEY)||'null'));}catch(e){}
-let sucio=false,subiendo=null,estadoNube=sync.codigo?'pendiente':'';
+const AUTH_KEY='mi-plata-auth-v1';
+let auth=null,ultima=null;
+try{const a=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');if(a&&a.refresh){auth=a;ultima=a.ultima||null;}}catch(e){}
+try{localStorage.removeItem('mi-plata-sync-v1');}catch(e){}
+/* sucio = hay cambios sin subir; se guarda para no olvidarlos si la app se cierra sin internet */
+let sucio=false,subiendo=null,estadoNube=auth?'pendiente':'';
+try{sucio=localStorage.getItem('mi-plata-pendiente')==='1';}catch(e){}
+function marcarSucio(v){sucio=v;try{v?localStorage.setItem('mi-plata-pendiente','1'):localStorage.removeItem('mi-plata-pendiente');}catch(e){}}
 const hayNube=()=>!!(NUBE.url&&NUBE.key);
-const vinculado=()=>hayNube()&&!!sync.codigo;
-function guardarSync(){try{localStorage.setItem(SYNC_KEY,JSON.stringify(sync));}catch(e){}}
-
-const ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function nuevoCodigo(){
-  const a=new Uint8Array(20);crypto.getRandomValues(a);
-  return normCodigo([...a].map(n=>ABC[n%ABC.length]).join(''));
+const vinculado=()=>hayNube()&&!!auth;
+const API=p=>NUBE.url.replace(/\/$/,'')+p;
+function guardarAuth(){try{if(auth)localStorage.setItem(AUTH_KEY,JSON.stringify(Object.assign(auth,{ultima})));else localStorage.removeItem(AUTH_KEY);}catch(e){}}
+function sesionDe(o){
+  let email=o.user&&o.user.email||'';
+  if(!email){try{email=JSON.parse(atob(o.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email||'';}catch(e){}}
+  const exp=o.expires_at?Number(o.expires_at):Math.floor(Date.now()/1000)+Number(o.expires_in||3600);
+  return {access:o.access_token,refresh:o.refresh_token,exp,email};
 }
-const normCodigo=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/(.{5})(?=.)/g,'$1-');
 
+/* La sesión dura una hora; antes de que venza se pide otra con el refresh token */
+let renovando=null;
+async function token(){
+  if(auth.exp-60>Date.now()/1000)return auth.access;
+  if(!renovando)renovando=(async()=>{
+    const r=await fetch(API('/auth/v1/token?grant_type=refresh_token'),{method:'POST',
+      headers:{apikey:NUBE.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:auth.refresh})});
+    if(r.status===400||r.status===401){salir(true);throw new Error('sesión vencida');}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    auth=Object.assign(auth,sesionDe(await r.json()));guardarAuth();
+  })().finally(()=>{renovando=null;});
+  await renovando;return auth.access;
+}
 async function nubeRPC(fn,args){
-  const r=await fetch(NUBE.url.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',
-    headers:{apikey:NUBE.key,Authorization:'Bearer '+NUBE.key,'Content-Type':'application/json'},
+  const r=await fetch(API('/rest/v1/rpc/'+fn),{method:'POST',
+    headers:{apikey:NUBE.key,Authorization:'Bearer '+await token(),'Content-Type':'application/json'},
     body:JSON.stringify(args)});
   if(!r.ok)throw new Error('HTTP '+r.status);
   return r.json();
 }
-const nubeLeer=c=>nubeRPC('leer_estado',{p_codigo:c}).then(f=>(Array.isArray(f)?f[0]:f)||null);
-const nubeGuardar=(c,d)=>nubeRPC('guardar_estado',{p_codigo:c,p_data:d});
+const nubeLeer=()=>nubeRPC('leer_mis_datos',{}).then(f=>(Array.isArray(f)?f[0]:f)||null);
+const nubeGuardar=d=>nubeRPC('guardar_mis_datos',{p_data:d});
 
 function pintarSync(e){
   estadoNube=e;
@@ -419,66 +435,68 @@ async function subir(){
   if(!vinculado())return;
   pintarSync('subiendo');
   try{
-    const t=await nubeGuardar(sync.codigo,S);
-    sync.ultima=t;guardarSync();sucio=false;pintarSync('ok');
-  }catch(e){pintarSync('pendiente');}
+    const t=await nubeGuardar(S);
+    ultima=t;guardarAuth();marcarSucio(false);pintarSync('ok');
+  }catch(e){if(auth)pintarSync('pendiente');}
 }
 function programarSubida(){
   if(!vinculado())return;
   clearTimeout(subiendo);subiendo=setTimeout(subir,1200);
+}
+function usarDeLaNube(fila){
+  S=estado(fila.data);CRYPTO_UMBRAL=S.cryptoUmbral;
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  ultima=fila.actualizado;guardarAuth();marcarSucio(false);
 }
 async function bajar(){
   if(!vinculado())return;
   if(sucio)return subir();
   pintarSync('subiendo');
   try{
-    const fila=await nubeLeer(sync.codigo);
+    const fila=await nubeLeer();
     if(!fila)return subir();
-    if(fila.actualizado===sync.ultima)return pintarSync('ok');
-    S=estado(fila.data);CRYPTO_UMBRAL=S.cryptoUmbral;
-    try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
-    sync.ultima=fila.actualizado;guardarSync();sucio=false;
-    pintarSync('ok');render();
-  }catch(e){pintarSync('pendiente');}
+    if(fila.actualizado===ultima)return pintarSync('ok');
+    usarDeLaNube(fila);pintarSync('ok');render();
+  }catch(e){if(auth)pintarSync('pendiente');}
 }
 function tieneDatos(s){return !!(s&&(s.ciclo||(s.historial&&s.historial.length)||(s.metas&&s.metas.length)));}
 
-async function activarSync(){
-  sync={codigo:nuevoCodigo(),ultima:null};guardarSync();
-  await subir();
-  if(estadoNube!=='ok'){sync={codigo:null,ultima:null};guardarSync();toast('No se pudo conectar. Probá de nuevo con internet.');return;}
-  render();
-  openSheet(`<h2>Listo</h2><p class="small">Escribí este código en tu otro dispositivo, en Progreso → Ya tengo un código.</p>
-  <div class="card" style="text-align:center;font-size:1.3rem;font-weight:800;letter-spacing:.08em;padding:18px">${esc(sync.codigo)}</div>
-  <p class="small">Guardalo en algún lado. Si lo perdés en todos tus dispositivos, no hay forma de recuperar los datos de la nube.</p>
-  <button class="bigbtn" id="s-ok">Entendido</button>`);
-  $('#s-ok').onclick=closeSheet;
+function entrar(){
+  location.href=API('/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+location.pathname));
 }
-
-function pedirCodigo(){
-  openSheet(`<h2>Ya tengo un código</h2><p class="small">Escribí el código que te dio tu otro dispositivo.</p>
-  <label class="f" for="s-cod">Código</label><input id="s-cod" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCDE-FGHIJ-KLMNO-PQRST">
-  <button class="bigbtn" id="s-ok">Conectar</button><button class="btn" id="s-no">Cancelar</button>`);
-  $('#s-no').onclick=closeSheet;
-  $('#s-ok').onclick=async()=>{
-    const cod=normCodigo($('#s-cod').value);
-    if(cod.replace(/-/g,'').length<16){toast('Ese código está incompleto');return;}
-    let fila;
-    try{fila=await nubeLeer(cod);}catch(e){toast('No se pudo conectar. Revisá tu internet.');return;}
-    if(!fila){toast('No encontramos datos con ese código. Revisalo.');return;}
-    if(tieneDatos(S)){
-      const cuando=new Date(fila.actualizado);
-      const quedarse=await ask('Este dispositivo ya tiene datos',
-        'En la nube hay datos guardados el '+corto(cuando)+'. Si seguís, los de este dispositivo se reemplazan por los de la nube.',
-        'Usar los de la nube');
-      if(!quedarse)return;
-    }
-    sync={codigo:cod,ultima:fila.actualizado};guardarSync();
-    S=estado(fila.data);CRYPTO_UMBRAL=S.cryptoUmbral;
-    try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
-    sucio=false;pintarSync('ok');closeSheet();go('home');toast('Dispositivos sincronizados');
-  };
-  setTimeout(()=>{const x=$('#s-cod');if(x)x.focus();},80);
+/* Google vuelve a la app con la sesión en el #hash de la dirección */
+async function volverDeGoogle(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  if(!h.get('access_token')&&!h.get('error'))return false;
+  history.replaceState(null,'',location.pathname+location.search);
+  if(h.get('error')){toast('No se pudo entrar con Google. Probá de nuevo.');return true;}
+  const nueva=sesionDe({access_token:h.get('access_token'),refresh_token:h.get('refresh_token'),expires_at:h.get('expires_at'),expires_in:h.get('expires_in')});
+  let fila;
+  auth=nueva;
+  try{fila=await nubeLeer();}catch(e){auth=null;toast('No se pudo conectar. Probá de nuevo con internet.');return true;}
+  /* la sesión recién queda guardada cuando se sabe qué datos usar */
+  auth=null;
+  const enNube=fila&&tieneDatos(fila.data);
+  if(enNube&&tieneDatos(S)){
+    const deLaCuenta=await ask('Ya tenías datos guardados',
+      'En tu cuenta hay datos del '+corto(new Date(fila.actualizado))+' y en este dispositivo hay otros. ¿Con cuáles te quedás? Los otros se reemplazan.',
+      'Los de mi cuenta',false,'Los de este dispositivo');
+    auth=nueva;ultima=null;guardarAuth();
+    if(deLaCuenta)usarDeLaNube(fila);else await subir();
+  }else{
+    auth=nueva;ultima=null;guardarAuth();
+    if(enNube)usarDeLaNube(fila);else await subir();
+  }
+  pintarSync('ok');render();
+  toast('Listo, ya sincroniza con '+(auth.email||'tu cuenta'));
+  return true;
+}
+function salir(vencida){
+  const tk=auth&&auth.access;
+  auth=null;ultima=null;guardarAuth();estadoNube='';
+  if(!vencida&&tk)fetch(API('/auth/v1/logout'),{method:'POST',headers:{apikey:NUBE.key,Authorization:'Bearer '+tk}}).catch(()=>{});
+  if(vencida)toast('Se cerró tu sesión. Volvé a entrar con Google en Progreso.');
+  render();
 }
 
 const $=s=>document.querySelector(s);
@@ -1252,28 +1270,22 @@ function renderHistorial(R){
   <h3>Apariencia</h3>
   <label class="card row" style="cursor:pointer;padding:12px 16px"><span>Modo noche</span><input type="checkbox" role="switch" class="tgl" id="b-noche" ${esNoche()?'checked':''}></label>
   ${hayNube()?`<h3>Sincronización</h3>${vinculado()?
-    `<div class="card"><div class="row" style="border:0"><span>Estado</span><span id="sync-estado">${textoSync()}</span></div>
-     <div class="row"><span>Código</span><b style="letter-spacing:.06em">${esc(sync.codigo)}</b></div></div>
-     <p class="small">Escribí ese código en tu otro dispositivo para que vean los mismos datos.</p>
-     <button class="btn" id="b-copiar">Copiar código</button>
-     <button class="btn" id="b-desvincular" style="color:var(--neg)">Dejar de sincronizar</button>`:
-    `<p class="small" style="margin-top:0">Para ver los mismos datos en la compu y en el celular. Sin cuenta ni contraseña: este dispositivo genera un código y lo escribís en el otro.</p>
-     <button class="bigbtn" id="b-vincular">Activar sincronización</button>
-     <button class="btn" id="b-tengo">Ya tengo un código</button>`}`:''}
+    `<div class="card"><div class="row" style="border:0"><span>Cuenta</span><b style="overflow-wrap:anywhere;text-align:right">${esc(auth.email||'Google')}</b></div>
+     <div class="row"><span>Estado</span><span id="sync-estado">${textoSync()}</span></div></div>
+     <p class="small">Entrá con la misma cuenta en tu otro dispositivo para ver los mismos datos.</p>
+     <button class="btn" id="b-salir" style="color:var(--neg)">Cerrar sesión</button>`:
+    `<p class="small" style="margin-top:0">Para ver los mismos datos en la compu y en el celular: entrá con tu cuenta de Google en los dos.</p>
+     <button class="bigbtn" id="b-google" style="display:flex;align-items:center;justify-content:center;gap:10px"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar con Google</button>`}`:''}
   <h3>Copia de seguridad</h3>
   <p class="small" style="margin-top:0">Tus datos viven en este celular. Si borrás los datos de Safari o cambiás de teléfono, se pierden. Descargá una copia cada mes.</p>
   <button class="btn" id="b-bk">Descargar copia</button>
   <button class="btn" id="b-rs">Restaurar una copia</button>
   <button class="btn" id="b-wipe" style="color:var(--neg)">Borrar todos los datos</button>`;
-  const bv=$('#b-vincular');if(bv)bv.onclick=activarSync;
-  const bt=$('#b-tengo');if(bt)bt.onclick=pedirCodigo;
-  const bcop=$('#b-copiar');if(bcop)bcop.onclick=async()=>{
-    try{await navigator.clipboard.writeText(sync.codigo);toast('Código copiado');}catch(e){toast('Copialo a mano: '+sync.codigo);}
-  };
+  const bg=$('#b-google');if(bg)bg.onclick=entrar;
   $('#b-noche').onchange=e=>ponerTema(e.target.checked?'dark':'light');
-  const bdv=$('#b-desvincular');if(bdv)bdv.onclick=async()=>{
-    if(!await ask('¿Dejar de sincronizar?','Este dispositivo deja de mandar y recibir cambios. Los datos que ya tenés acá se quedan.','Dejar de sincronizar',true))return;
-    sync={codigo:null,ultima:null};guardarSync();estadoNube='';render();toast('Sincronización desactivada');
+  const bsa=$('#b-salir');if(bsa)bsa.onclick=async()=>{
+    if(!await ask('¿Cerrar sesión?','Este dispositivo deja de sincronizar. Los datos que ya tenés acá se quedan.','Cerrar sesión',true))return;
+    salir();toast('Sesión cerrada');
   };
   $('#b-cobre').onclick=()=>go('cobre');
   document.querySelectorAll('[data-mes]').forEach(b=>b.onclick=()=>go('cierre',Number(b.dataset.mes)));
@@ -1337,9 +1349,9 @@ $('#restore').onchange=async e=>{
 };
 
 /* ---------- Hoja ---------- */
-function ask(titulo,texto,ok,peligro){
+function ask(titulo,texto,ok,peligro,no='Cancelar'){
   return new Promise(res=>{
-    openSheet(`<h2>${esc(titulo)}</h2><p class="small">${esc(texto)}</p><button class="bigbtn ${peligro?'danger':''}" id="q-ok">${esc(ok)}</button><button class="btn" id="q-no">Cancelar</button>`);
+    openSheet(`<h2>${esc(titulo)}</h2><p class="small">${esc(texto)}</p><button class="bigbtn ${peligro?'danger':''}" id="q-ok">${esc(ok)}</button><button class="btn" id="q-no">${esc(no)}</button>`);
     $('#q-ok').onclick=()=>{closeSheet();res(true);};$('#q-no').onclick=()=>{closeSheet();res(false);};
   });
 }
@@ -1353,7 +1365,7 @@ window.addEventListener('online',()=>{sucio?subir():bajar();});
 
 render();
 chequeoCriptoInicial();
-bajar();
+volverDeGoogle().then(v=>{if(!v)bajar();});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.claude){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 })();
 </script>
