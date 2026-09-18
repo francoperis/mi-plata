@@ -149,6 +149,13 @@ nav button[aria-current="page"] span{background:var(--nav-on)}
 .cal-d.hoy{box-shadow:inset 0 0 0 1.5px var(--s2);color:var(--s2)}
 .cal-d[aria-pressed="true"]{background:var(--ink);color:var(--bg);box-shadow:none}
 .cal-d:disabled{opacity:.28}
+.cr-top{padding:4px 12px}
+.cr-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}.cr-row:first-child{border-top:0}
+.cr-n{width:16px;font-size:.78rem;color:var(--muted);text-align:right;flex:none}
+.cr-row img,.cr-row>i{width:28px;height:28px;border-radius:50%;flex:none;background:var(--surface2)}
+.cr-nm{flex:1;min-width:0;display:flex;flex-direction:column}.cr-nm b{font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cr-nm small,.cr-pr small{font-size:.74rem;color:var(--muted)}
+.cr-pr{text-align:right;display:flex;flex-direction:column}.cr-pr b{font-size:.95rem}
+.sube{color:var(--pos)}.baja{color:var(--neg)}
 .sr-date{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:9px 13px;font-size:.93rem;display:inline-flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -416,12 +423,13 @@ const ALLOC=[
 /* ---------- Alertas de criptomonedas (CoinGecko, sin backend) ---------- */
 const CRYPTO_KEY='mi-plata-cripto-v1';
 const CRYPTO_TTL=6*60*60*1000;
-let CRYPTO_UMBRAL=25;
+const UMBRALES=[3,5,7,10,15];
+let CRYPTO_UMBRAL=5;
 
 function estado(d){
-  const s=Object.assign({v:1,ciclo:null,historial:[],baseResumen:157000,metas:[],cryptoUmbral:25},d&&d.v===1?d:null);
+  const s=Object.assign({v:1,ciclo:null,historial:[],baseResumen:157000,metas:[],cryptoUmbral:5},d&&d.v===1?d:null);
   if(!Array.isArray(s.metas))s.metas=[];
-  if(!s.cryptoUmbral)s.cryptoUmbral=25;
+  if(!UMBRALES.includes(s.cryptoUmbral))s.cryptoUmbral=5;
   return s;
 }
 let S;
@@ -1051,15 +1059,12 @@ function montoDisponibleParaInvertir(){
 }
 function cryptoAlertas(cache){
   if(!cache||!cache.coins)return[];
-  return cache.coins.filter(c=>{
-    const d14=c.price_change_percentage_14d_in_currency,d30=c.price_change_percentage_30d_in_currency;
-    return (d14!=null&&d14<=-CRYPTO_UMBRAL)||(d30!=null&&d30<=-CRYPTO_UMBRAL);
-  });
+  return cache.coins.filter(c=>c.d7!=null&&c.d7<=-CRYPTO_UMBRAL).sort((a,b)=>a.d7-b.d7);
 }
 function cryptoHintHtml(){
   const bajaron=cryptoAlertas(leerCacheCripto());
   if(!bajaron.length)return'';
-  return `<button class="hint" style="border-left-color:var(--neg);display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;text-align:left" id="b-crypto-hint"><span style="display:flex;gap:9px;align-items:center">${ico('down',17)}${bajaron.length} cripto${bajaron.length>1?'s':''} bajaron fuerte. Ver oportunidades</span><span>›</span></button>`;
+  return `<button class="hint" style="border-left-color:var(--neg);display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;text-align:left" id="b-crypto-hint"><span style="display:flex;gap:9px;align-items:center">${ico('down',17)}${bajaron.length} cripto${bajaron.length>1?'s':''} bajaron más de ${CRYPTO_UMBRAL}% esta semana. Ver</span><span>›</span></button>`;
 }
 function renderInvertir(R){
   const dato=DATOS[datoIdx],disponible=montoDisponibleParaInvertir();
@@ -1097,19 +1102,27 @@ function renderGuia(el){
 function leerCacheCripto(){try{return JSON.parse(localStorage.getItem(CRYPTO_KEY)||'null');}catch(e){return null;}}
 function guardarCacheCripto(c){try{localStorage.setItem(CRYPTO_KEY,JSON.stringify(c));}catch(e){}}
 function renderAlertasCripto(el){
-  el.innerHTML=`<p class="small" style="margin-top:14px">Monedas que bajaron fuerte en las últimas semanas. Te mostramos el dato y accesos a noticias: la decisión es tuya.</p>
-  <label class="f">Avisame si baja más de</label>
-  <div class="chips" id="cr-chip">${[15,20,25,30,40].map(v=>`<button class="chip" data-v="${v}" aria-pressed="${CRYPTO_UMBRAL===v}">${v}%</button>`).join('')}</div>
+  el.innerHTML=`<p class="small" style="margin-top:14px">Monedas que bajaron en la última semana y las más conocidas del mercado. Te mostramos el dato y accesos a noticias: la decisión es tuya.</p>
+  <label class="f">Avisame si en la semana baja más de</label>
+  <div class="chips" id="cr-chip">${UMBRALES.map(v=>`<button class="chip" data-v="${v}" aria-pressed="${CRYPTO_UMBRAL===v}">${v}%</button>`).join('')}</div>
   <button class="btn" id="cr-refresh">Actualizar cotizaciones</button>
   <div id="cr-list"></div>
-  <div class="disclaimer">Esto no es una recomendación de compra ni de venta. Una baja fuerte puede ser una oportunidad o el comienzo de algo peor: la única forma de saberlo es leer varias fuentes antes de decidir. Precios de CoinGecko, pueden tener demora.</div>`;
+  <div class="disclaimer">Esto no es una recomendación de compra ni de venta. Una baja puede ser una oportunidad o el comienzo de algo peor, y que una moneda sea conocida no la hace segura: leé varias fuentes antes de decidir. Precios de CoinGecko, pueden tener demora.</div>`;
   document.querySelectorAll('#cr-chip .chip').forEach(b=>b.onclick=()=>{
     CRYPTO_UMBRAL=Number(b.dataset.v);S.cryptoUmbral=CRYPTO_UMBRAL;save();
     document.querySelectorAll('#cr-chip .chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
-    pintarListaCripto();
+    pintarListaCripto();avisoCriptoHome();
   });
   $('#cr-refresh').onclick=()=>actualizarCripto(true);
   pintarListaCripto();
+}
+const usd=n=>n==null?'–':'US$ '+n.toLocaleString('es-AR',{maximumFractionDigits:n<1?4:n<100?2:0});
+const pctTxt=n=>n==null?'–':(n>0?'+':'')+n.toFixed(1).replace('.',',')+'%';
+const pctCls=n=>n==null?'':n<0?'baja':'sube';
+/* Las más conocidas: por capitalización, sin las atadas al dólar ni las "envueltas" */
+function masConocidas(coins){
+  const atadaAlDolar=c=>c.precio>.9&&c.precio<1.1&&Math.abs(c.d7||0)<2&&Math.abs(c.d30||0)<3;
+  return coins.filter(c=>!/usd|dai$/i.test(c.symbol)&&!/wrapped|staked|bridged|usd/i.test(c.name)&&!atadaAlDolar(c)).slice(0,10);
 }
 function pintarListaCripto(){
   const box=$('#cr-list');if(!box)return;
@@ -1117,25 +1130,31 @@ function pintarListaCripto(){
   if(!cache){box.innerHTML=`<div class="empty">Todavía no consultamos cotizaciones. Tocá "Actualizar cotizaciones".</div>`;return;}
   if(cache.buscando){box.innerHTML=`<div class="empty">Buscando…</div>`;return;}
   if(!cache.coins){box.innerHTML=`<div class="warn">No pudimos consultar cotizaciones ahora${cache.error?' ('+esc(cache.error)+')':''}. Podés mirar directamente en <a href="https://www.coingecko.com/es" target="_blank" rel="noopener">CoinGecko</a> y probar de nuevo más tarde.</div>`;return;}
-  const bajaron=cryptoAlertas(cache);
+  const bajaron=cryptoAlertas(cache),top=masConocidas(cache.coins);
   const act=cache.ts?Math.max(0,Math.round((Date.now()-cache.ts)/60000)):null;
   box.innerHTML=(act!=null?`<p class="small">Actualizado hace ${act<1?'un momento':act+' min'}${cache.parcial?' · última copia guardada':''}</p>`:'')+
+   `<h3>En baja esta semana</h3>`+
    (bajaron.length?bajaron.map(c=>{
-     const d14=c.price_change_percentage_14d_in_currency,d30=c.price_change_percentage_30d_in_currency;
      const q=encodeURIComponent(c.name+' criptomoneda noticias');
-     const pr=c.current_price==null?'–':'US$'+c.current_price.toLocaleString('es-AR',{maximumFractionDigits:c.current_price<1?4:2});
-     return `<div class="crypto-card"><div class="h"><span class="nm">${c.image?`<img src="${c.image}" alt="">`:''}${esc(c.name)} <span class="small">${esc((c.symbol||'').toUpperCase())}</span></span><span class="pct">${d30!=null?Math.round(d30)+'% (30d)':Math.round(d14)+'% (14d)'}</span></div>
-     <div class="sub">Precio: ${pr}${d14!=null&&d30!=null?' · 14d: '+Math.round(d14)+'%':''}</div>
+     return `<div class="crypto-card"><div class="h"><span class="nm">${c.image?`<img src="${c.image}" alt="">`:''}${esc(c.name)} <span class="small">${esc((c.symbol||'').toUpperCase())}</span></span><span class="pct">${pctTxt(c.d7)} <small>(7d)</small></span></div>
+     <div class="sub">Precio: ${usd(c.precio)} · 24 h: ${pctTxt(c.d24)} · 30 días: ${pctTxt(c.d30)}</div>
      <div class="links"><a href="https://news.google.com/search?q=${q}&hl=es-419" target="_blank" rel="noopener">Ver noticias</a><a href="https://www.coingecko.com/es/monedas/${c.id}" target="_blank" rel="noopener">Ver gráfico</a></div></div>`;
-   }).join(''):`<div class="hint">Ninguna de las principales ${cache.coins.length} monedas bajó más de ${CRYPTO_UMBRAL}% en las últimas semanas.</div>`);
+   }).join(''):`<div class="hint" style="margin-top:0">Ninguna de las principales ${cache.coins.length} monedas bajó más de ${CRYPTO_UMBRAL}% esta semana.</div>`)+
+   `<h3>Las 10 más conocidas</h3>
+   <div class="card cr-top">${top.map((c,i)=>`<a class="cr-row" href="https://www.coingecko.com/es/monedas/${c.id}" target="_blank" rel="noopener">
+     <span class="cr-n">${i+1}</span>${c.image?`<img src="${c.image}" alt="">`:'<i></i>'}
+     <span class="cr-nm"><b>${esc(c.name)}</b><small>${esc((c.symbol||'').toUpperCase())}</small></span>
+     <span class="cr-pr"><b>${usd(c.precio)}</b><small><span class="${pctCls(c.d24)}">${pctTxt(c.d24)}</span> hoy · <span class="${pctCls(c.d7)}">${pctTxt(c.d7)}</span> 7d</small></span></a>`).join('')}</div>
+   <p class="small">Ordenadas por tamaño de mercado, sin contar las monedas atadas al dólar. Tocá una para ver su gráfico.</p>`;
 }
 async function actualizarCripto(manual){
   if(manual){guardarCacheCripto(Object.assign(leerCacheCripto()||{},{buscando:true}));pintarListaCripto();}
   try{
-    const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=14d,30d');
+    const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h,7d,30d');
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
-    const coins=data.map(c=>({id:c.id,name:c.name,symbol:c.symbol,image:c.image,current_price:c.current_price,price_change_percentage_14d_in_currency:c.price_change_percentage_14d_in_currency,price_change_percentage_30d_in_currency:c.price_change_percentage_30d_in_currency}));
+    const coins=data.map(c=>({id:c.id,name:c.name,symbol:c.symbol,image:c.image,precio:c.current_price,
+      d24:c.price_change_percentage_24h_in_currency,d7:c.price_change_percentage_7d_in_currency,d30:c.price_change_percentage_30d_in_currency}));
     guardarCacheCripto({ts:Date.now(),coins});
   }catch(e){
     const prev=leerCacheCripto();
@@ -1152,7 +1171,8 @@ function avisoCriptoHome(){
 function chequeoCriptoInicial(){
   const cache=leerCacheCripto();
   avisoCriptoHome();
-  if(!cache||!cache.ts||Date.now()-cache.ts>CRYPTO_TTL)actualizarCripto(false);
+  const vieja=cache&&cache.coins&&cache.coins[0]&&!('d7' in cache.coins[0]);
+  if(!cache||!cache.ts||vieja||Date.now()-cache.ts>CRYPTO_TTL)actualizarCripto(false);
 }
 
 /* ---------- Misiones ---------- */
