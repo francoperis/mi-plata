@@ -68,9 +68,14 @@ h3{font-size:1rem;font-weight:700;margin:26px 0 10px;color:var(--muted)}
 .bigbtn{display:block;width:100%;margin-top:22px;border:0;border-radius:16px;padding:18px;font-weight:700;font-size:1.1rem;background:var(--coral);color:#0E1726}
 .btn{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:600;background:var(--surface)}
 .back{background:none;border:0;padding:6px 0;font-weight:600;color:var(--muted)}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 12px calc(8px + env(safe-area-inset-bottom));z-index:5}
-nav div{display:grid;grid-template-columns:repeat(5,1fr);max-width:460px;width:100%}
-nav button{background:none;border:0;padding:6px 2px;font-size:.66rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;position:relative}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav div{display:grid;grid-template-columns:1.5fr 1.5fr 64px 1fr 1fr 1fr;max-width:460px;width:100%}
+/* botón central para anotar: sobresale del navbar sobre una montañita */
+nav .fabw{position:relative;display:flex;justify-content:center;align-items:flex-start}
+nav .fabw svg.hill{position:absolute;top:-38px;left:50%;transform:translateX(-50%);width:150px;height:39px;overflow:visible;pointer-events:none}
+nav .fabw .hill path.f{fill:var(--surface)}nav .fabw .hill path.l{fill:none;stroke:var(--line);stroke-width:1}
+nav button.fab{width:60px;height:60px;margin-top:-30px;padding:0;border-radius:50%;background:#fff;color:#0A1120;display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 0 1px rgba(10,17,32,.06)}
+nav button{background:none;border:0;padding:6px 0;font-size:.66rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;position:relative}
 nav button span{width:36px;height:26px;border-radius:9px;display:grid;place-items:center;transition:background .18s}
 nav button .ping{position:absolute;top:2px;right:22%;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--surface)}
 nav button[aria-current="page"]{color:var(--ink)}
@@ -260,6 +265,8 @@ nav button[aria-current="page"]{color:var(--ink)}
 <nav id="nav"><div>
   <button data-go="home"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="3"/><circle cx="12" cy="12" r="2.6"/></svg></span>Hoy</button>
   <button data-go="tarjeta"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/></svg></span>Tarjeta</button>
+  <div class="fabw"><svg class="hill" viewBox="0 0 150 39" aria-hidden="true"><path class="f" d="M0 39C32 39 36 1 75 1S118 39 150 39Z"/><path class="l" d="M0 38.5C32 38.5 36 .5 75 .5S118 38.5 150 38.5"/></svg>
+    <button class="fab" id="nav-plus" aria-label="Anotar gasto"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
   <button data-go="invertir"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c0-3.5-2.5-6-7-6 0 4 2 6.5 7 6Z"/><path d="M12 11c0-4 2.8-7 7-7 0 4.5-2.2 7.3-7 7Z"/></svg></span>Invertir<i class="ping" id="nav-ping" hidden></i></button>
   <button data-go="misiones"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>Misiones</button>
   <button data-go="historial"><span><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Progreso</button>
@@ -608,6 +615,11 @@ function mensajes(c,r){
 let view='home',param=null;
 function go(v,p){view=v;param=p==null?null:p;render();window.scrollTo(0,0);}
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#nav-plus').onclick=()=>{
+  if(!S.ciclo){go('home');toast('Primero cargá tu sueldo para armar los sobres.');return;}
+  if(sim(S.ciclo).despues){go('home');toast('Se terminó el mes. Tocá "Cobré" para arrancar el nuevo.');return;}
+  abrirGasto();
+};
 
 let introHecho=false,lastView='',counts={};
 const reduceMotion=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -679,7 +691,7 @@ function renderHome(R){
   }
   const top=4*54;
   R.innerHTML=`
-  <div class="top"><h1>Mi plata</h1>${r.despues?'':`<button class="plus" id="b-plus" aria-label="Anotar gasto">+</button>`}</div>
+  <div class="top"><h1>Mi plata</h1></div>
   <div class="small">${largo(t)}</div>
   <div class="stack ${introHecho?'':'intro'}" style="height:${top+198}px">
     ${r.ws.map(stackCard).join('')}
@@ -700,7 +712,7 @@ function renderHome(R){
   ${r.despues?`<button class="bigbtn" id="b-cobre">Cobré, cerrar el mes</button>`:`<button class="bigbtn" id="b-gaste">Gasté plata</button>`}
   ${(()=>{const hg=c.gastos.filter(g=>g.f===iso(t)).slice().reverse();return hg.length?`<h3>Gastos de hoy</h3><div class="card"><ul class="list">${hg.map(g=>`<li>${gastoChip(g)}<button class="d" data-edit="${g.id}" aria-label="Editar gasto"><div>${esc(gastoNombre(g))}${g.imp&&g.nota?', '+esc(g.nota):''}</div></button><b>${fmt(g.m)}</b><button class="x" data-del="${g.id}" aria-label="Borrar">×</button></li>`).join('')}</ul></div>`:'';})()}`;
   document.querySelectorAll('[data-sobre]').forEach(b=>b.onclick=()=>go('sobre',Number(b.dataset.sobre)));
-  ['#b-gaste','#b-plus'].forEach(id=>{const e=$(id);if(e)e.onclick=()=>abrirGasto();});
+  const e=$('#b-gaste');if(e)e.onclick=()=>abrirGasto();
   $('#m-alc').onclick=()=>go('historial');$('#m-tj').onclick=()=>go('tarjeta');
   const cb=$('#b-cobre');if(cb)cb.onclick=()=>go('cobre');
   const bl=$('#b-luz');if(bl)bl.onclick=()=>abrirGasto('luz');
