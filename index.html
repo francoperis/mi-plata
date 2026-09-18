@@ -119,6 +119,22 @@ nav button[aria-current="page"] span{background:var(--nav-on)}
 .bar i{display:block;height:100%;background:var(--s1)}
 .bar i.r{background:var(--neg)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+/* formulario de gasto compacto */
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.shead h2{margin:0}
+.xbtn{width:36px;height:36px;flex:none;border-radius:50%;border:0;background:var(--surface2);color:var(--muted);display:grid;place-items:center}
+.frow{display:flex;gap:8px;align-items:stretch}.frow input.big{flex:1;min-width:0;margin:0}
+.pago{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--surface2)}
+.pago button{width:46px;border:0;border-radius:10px;background:none;color:var(--muted);display:grid;place-items:center;transition:background .15s,color .15s}
+.pago button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.icos{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:16px}.icos.t3{grid-template-columns:repeat(3,1fr)}
+.icos button{background:none;border:0;padding:0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:.7rem;color:var(--muted);letter-spacing:-.01em;white-space:nowrap}
+.icos button span{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--surface2);color:var(--ink);display:grid;place-items:center;transition:background .15s,color .15s,transform .15s}
+.icos button[aria-pressed="true"]{color:var(--ink);font-weight:700}.icos button[aria-pressed="true"] span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.icos button:active span{transform:scale(.92)}
+.chips.fila{flex-wrap:nowrap;overflow-x:auto;margin-top:16px;scrollbar-width:none}.chips.fila::-webkit-scrollbar{display:none}
+.chips.fila{gap:6px}.chips.fila .chip{flex:none;padding:8px 10px;font-size:.85rem;gap:5px}
+.chip.alerta[aria-pressed="true"]{background:var(--s4);border-color:var(--s4);color:#2A1A00}
+.sr-date{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:9px 13px;font-size:.93rem;display:inline-flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .badge{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 12px;margin:0 6px 6px 0;font-size:.88rem}
@@ -852,7 +868,7 @@ function cambiarMonto(i){
 /* Accesos Hoy / Ayer para un campo de fecha: se apagan si la fecha es otra */
 function chipsFecha(id){return `<div class="chips" id="${id}" style="margin-bottom:8px"><button class="chip" data-f="${iso(hoyD())}">Hoy</button><button class="chip" data-f="${iso(add(hoyD(),-1))}">Ayer</button></div>`;}
 function ligarFecha(id,campo){
-  const inp=$(campo),chips=document.querySelectorAll('#'+id+' .chip');
+  const inp=$(campo),chips=document.querySelectorAll('#'+id+' .chip[data-f]');
   const pintar=()=>chips.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.f===inp.value)));
   chips.forEach(b=>b.onclick=()=>{inp.value=b.dataset.f;pintar();});
   inp.onchange=pintar;pintar();
@@ -922,33 +938,45 @@ function fondoAtras(abrir){
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
   let cat=ed&&ed.cat||'super',medio=ed?ed.medio:(pre==='tarjeta'||pre==='luz'?'tarjeta':'plata'),tipo=ed&&ed.tipo||(pre==='luz'?'luz':'luz'),imp=!!(ed&&ed.imp);
-  openSheet(`<h2>${ed?'Editar gasto':medio==='tarjeta'?'Cargar en la tarjeta':'Gasté plata'}</h2>
-  <label class="f" for="g-m">Cuánto</label><input id="g-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="0" value="${ed?miles(ed.m):''}">
-  <label class="f">Cómo pagaste</label>
-  <div class="chips" id="g-medio"><button class="chip" data-v="plata">${ico('bill',16)}Plata</button><button class="chip" data-v="tarjeta">${ico('card',16)}Tarjeta</button></div>
-  <div id="g-plata"><label class="f">En qué</label><div class="chips" id="g-cat">${CATS.map(c=>`<button class="chip" data-v="${c[0]}">${ico(CATICO[c[0]],16)}${c[1]}</button>`).join('')}</div>
-    <label class="check"><input type="checkbox" id="g-imp" ${imp?'checked':''}><span>Fue un imprevisto. Sacalo del sobre libre, no del de esta semana.</span></label>
-    <div id="g-notaw" hidden><label class="f" for="g-nota">¿Qué pasó?</label><input id="g-nota" type="text" maxlength="60" placeholder="Remedio, arreglo, regalo…" value="${ed&&ed.nota?esc(ed.nota):''}"></div></div>
-  <div id="g-tarj" hidden><label class="f">¿Qué pagaste con la tarjeta?</label><div class="chips" id="g-tipo">${TIPOS.map(c=>`<button class="chip" data-v="${c[0]}">${ico(TIPOICO[c[0]],16)}${c[1]}</button>`).join('')}</div>
+  const titulo=()=>ed?'Editar gasto':medio==='tarjeta'?'Cargar en la tarjeta':'Gasté plata';
+  const hoy=iso(hoyD()),ayer=iso(add(hoyD(),-1));
+  openSheet(`<div class="shead"><h2 id="g-tit">${titulo()}</h2><button class="xbtn" id="g-no" aria-label="Cerrar">${ico('cross',18,2.2)}</button></div>
+  <div class="frow">
+    <input id="g-m" class="big" type="text" inputmode="numeric" autocomplete="off" data-money placeholder="$ 0" aria-label="Cuánto" value="${ed?miles(ed.m):''}">
+    <div class="pago" id="g-medio" role="group" aria-label="Cómo pagaste"><button data-v="plata" aria-label="Plata" title="Plata">${ico('bill',22)}</button><button data-v="tarjeta" aria-label="Tarjeta" title="Tarjeta">${ico('card',22)}</button></div>
+  </div>
+  <div id="g-plata"><div class="icos" id="g-cat" role="group" aria-label="En qué">${CATS.map(c=>`<button data-v="${c[0]}"><span>${ico(CATICO[c[0]],21)}</span>${c[1]}</button>`).join('')}</div></div>
+  <div id="g-tarj" hidden><div class="icos t3" id="g-tipo" role="group" aria-label="Qué pagaste con la tarjeta">${TIPOS.map(c=>`<button data-v="${c[0]}"><span>${ico(TIPOICO[c[0]],21)}</span>${c[0]==='tel'?'Teléfono':c[1]}</button>`).join('')}</div>
     <div class="warn" id="g-warn" hidden>La tarjeta es solo para los fijos. Si podés, pagalo con la plata del sobre.</div></div>
-  <label class="f" for="g-f">Fecha</label>
-  ${chipsFecha('g-fecha')}
-  <input id="g-f" type="date" value="${ed?ed.f:iso(hoyD())}">
+  <div class="chips fila" id="g-fecha">
+    <button class="chip" data-f="${hoy}">Hoy</button><button class="chip" data-f="${ayer}">Ayer</button>
+    <button class="chip" id="g-otro">${ico('calendar',16)}<span>Otro día</span></button>
+    <button class="chip alerta" id="g-imp">${ico('alert',16)}Imprevisto</button>
+  </div>
+  <input id="g-f" class="sr-date" type="date" tabindex="-1" aria-label="Fecha" value="${ed?ed.f:hoy}">
+  <div id="g-notaw" hidden><p class="small" style="margin:12px 0 0">Sale del sobre libre, no del de esta semana.</p><label class="f" for="g-nota">¿Qué pasó?</label><input id="g-nota" type="text" maxlength="60" placeholder="Remedio, arreglo, regalo…" value="${ed&&ed.nota?esc(ed.nota):''}"></div>
   <button class="bigbtn" id="g-ok">${ed?'Guardar cambios':'Anotar'}</button>
-  ${ed?`<button class="btn" id="g-del" style="color:var(--neg)">Borrar gasto</button>`:''}
-  <button class="btn" id="g-no">Cancelar</button>`);
+  ${ed?`<button class="btn" id="g-del" style="color:var(--neg)">Borrar gasto</button>`:''}`);
   const paint=()=>{
-    document.querySelectorAll('#g-medio .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===medio));
-    document.querySelectorAll('#g-cat .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===cat));
-    document.querySelectorAll('#g-tipo .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===tipo));
+    document.querySelectorAll('#g-medio button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===medio));
+    document.querySelectorAll('#g-cat button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===cat));
+    document.querySelectorAll('#g-tipo button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===tipo));
+    $('#g-tit').textContent=titulo();
     $('#g-plata').hidden=medio!=='plata';$('#g-tarj').hidden=medio!=='tarjeta';
-    $('#g-warn').hidden=tipo!=='otra';$('#g-notaw').hidden=!imp;
+    $('#g-warn').hidden=tipo!=='otra';
+    $('#g-imp').style.display=medio==='plata'?'':'none';$('#g-imp').setAttribute('aria-pressed',imp);
+    $('#g-notaw').hidden=!(imp&&medio==='plata');
   };
-  document.querySelectorAll('#g-medio .chip').forEach(b=>b.onclick=()=>{medio=b.dataset.v;paint();});
-  document.querySelectorAll('#g-cat .chip').forEach(b=>b.onclick=()=>{cat=b.dataset.v;paint();});
-  document.querySelectorAll('#g-tipo .chip').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();});
+  document.querySelectorAll('#g-medio button').forEach(b=>b.onclick=()=>{medio=b.dataset.v;paint();});
+  document.querySelectorAll('#g-cat button').forEach(b=>b.onclick=()=>{cat=b.dataset.v;paint();});
+  document.querySelectorAll('#g-tipo button').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();});
   ligarFecha('g-fecha','#g-f');
-  $('#g-imp').onchange=e=>{imp=e.target.checked;paint();};
+  /* "Otro día" abre el calendario del celu; si la fecha elegida no es hoy ni ayer, la muestra */
+  const fi=$('#g-f'),otro=$('#g-otro');
+  const pintarOtro=()=>{const v=fi.value,es=!!v&&v!==hoy&&v!==ayer;otro.setAttribute('aria-pressed',es);otro.lastChild.textContent=es?corto(pd(v)):'Otro día';};
+  fi.addEventListener('change',pintarOtro);document.querySelectorAll('#g-fecha .chip[data-f]').forEach(b=>b.addEventListener('click',pintarOtro));pintarOtro();
+  otro.onclick=()=>{try{fi.showPicker();}catch(e){fi.focus();fi.click();}};
+  $('#g-imp').onclick=()=>{imp=!imp;paint();if(imp)setTimeout(()=>{const n=$('#g-nota');if(n)n.focus();},50);};
   $('#g-no').onclick=cerrarHoja;
   const gd=$('#g-del');if(gd)gd.onclick=async()=>{
     if(!await ask('¿Borrar este gasto?','Se descuenta de tus sobres y no se puede deshacer.','Borrar gasto',true))return;
