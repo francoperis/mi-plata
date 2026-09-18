@@ -30,7 +30,10 @@
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;color-scheme:light;--shadow:0 -4px 14px rgba(14,23,38,.16)}}
 :root[data-theme="light"]{--bg:#E8ECF2;--surface:#FFFFFF;--surface2:#F4F6FA;--line:#DCE1EA;--ink:#0A1120;--muted:#5D6878;--pos:#0E9C73;--neg:#E0413A;--neg-bg:rgba(224,65,58,.1);--tip-bg:#FFFFFF;--front:#0A1120;--front-ink:#F5F1EA;--front-muted:#A9B4C4;--front-line:#2C3B55;--btn:#0A1120;--btn-ink:#F5F1EA;--spot:rgba(255,255,255,.95);--bg-top:#F8F9FC;--grain:.04;--blob-a:rgba(16,201,163,.28);--blob-b:rgba(63,123,255,.24);--blob-c:rgba(140,92,247,.22);--blob-d:rgba(255,122,69,.2);--dots:rgba(10,17,32,.05);--nav-on:rgba(63,123,255,.12);--icochip:#EDF1F7;color-scheme:light;--shadow:0 -4px 14px rgba(14,23,38,.16)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--bg)}html,body{margin:0;color:var(--ink)}body{background:transparent}
+html{background:var(--bg)}
+html.atras{background:#03060C}
+@media (prefers-reduced-motion:no-preference){#root{transition:transform .38s cubic-bezier(.2,.8,.2,1),filter .38s,border-radius .38s}}
+html.atras #root{transform:scale(.92);filter:brightness(.75);border-radius:22px;background:var(--bg);overflow:hidden}html,body{margin:0;color:var(--ink)}body{background:transparent}
 body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;font-size:16px;font-variant-numeric:tabular-nums}
 main{max-width:460px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 18px calc(104px + env(safe-area-inset-bottom))}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -664,7 +667,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go)
 $('#nav-plus').onclick=()=>{
   if(!S.ciclo){go('home');toast('Primero cargá tu sueldo para armar los sobres.');return;}
   if(sim(S.ciclo).despues){go('home');toast('Se terminó el mes. Tocá "Cobré" para arrancar el nuevo.');return;}
-  expandirYAbrir($('#nav-plus'),()=>abrirGasto());
+  fondoAtras(()=>abrirGasto());
 };
 
 let introHecho=false,lastView='',counts={};
@@ -864,7 +867,10 @@ function cerrarAnotado(monto,bajaHoy){
     if(bajaHoy){const r=document.createElement('span');r.className='resta';r.textContent='−'+fmt(monto).replace('−','');fr.appendChild(r);setTimeout(()=>r.remove(),2300);}
   };
   if(monto==null||reduceMotion()||!pn.animate)return listo();
+  const H=document.documentElement,R=$('#root');
+  if(H.classList.contains('atras')){R.style.transition='none';H.classList.remove('atras');}
   const a=pn.getBoundingClientRect(),b=dest?dest.getBoundingClientRect():{left:innerWidth/2-20,top:40,width:40,height:40};
+  if(R.style.transition){H.classList.add('atras');void R.offsetWidth;R.style.transition='';H.classList.remove('atras');}
   const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
   $('#sheet').animate([{background:'rgba(5,10,20,.6)'},{background:'rgba(5,10,20,0)'}],{duration:450,fill:'forwards'});
   const an=pn.animate([{transform:'none',borderRadius:'24px 24px 0 0',opacity:1},
@@ -872,16 +878,15 @@ function cerrarAnotado(monto,bajaHoy){
     {transform:`translate(${dx}px,${dy}px) scale(.04)`,borderRadius:'50%',opacity:0}],{duration:450,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
   an.onfinish=()=>{$('#sheet').getAnimations().forEach(x=>x.cancel());an.cancel();listo();};
 }
-/* Al tocar el +: el formulario se abre como un círculo que crece desde el botón
-   hasta ocupar justo su lugar, con el contenido ya adentro */
-function expandirYAbrir(btn,abrir){
-  if(reduceMotion()||!document.body.animate)return abrir();
-  const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+/* Al tocar el +: la pantalla se achica hacia atrás y se oscurece, y el formulario
+   sube desde abajo. closeSheet la devuelve a su lugar. */
+function fondoAtras(abrir){
   abrir();
-  const pn=$('#panel'),q=pn.getBoundingClientRect(),x=cx-q.left,y=cy-q.top;
-  const R=Math.hypot(Math.max(x,q.width-x),Math.max(y,q.height-y));
-  pn.style.animation='none';
-  pn.animate([{clipPath:`circle(30px at ${x}px ${y}px)`},{clipPath:`circle(${R}px at ${x}px ${y}px)`}],{duration:420,easing:'cubic-bezier(.4,0,.2,1)'});
+  if(reduceMotion()||!document.body.animate)return;
+  $('#root').style.transformOrigin=`50% ${scrollY+innerHeight*.45}px`;
+  document.documentElement.classList.add('atras');
+  const pn=$('#panel');pn.style.animation='none';
+  pn.animate([{transform:'translateY(100%)'},{transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
@@ -1433,7 +1438,7 @@ function ask(titulo,texto,ok,peligro,no='Cancelar'){
   });
 }
 function openSheet(html){$('#panel').style.animation='';$('#panel').innerHTML=html;$('#sheet').classList.add('open');}
-function closeSheet(){$('#sheet').classList.remove('open');}
+function closeSheet(){$('#sheet').classList.remove('open');document.documentElement.classList.remove('atras');}
 $('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 document.addEventListener('input',e=>{const el=e.target;if(!el.matches||!el.matches('input[data-money]'))return;const d=el.value.replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,10);el.value=d?Number(d).toLocaleString('es-AR'):'';});
