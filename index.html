@@ -199,6 +199,10 @@ nav button[aria-current="page"]{color:var(--ink)}
  .sc{transition:transform .25s cubic-bezier(.2,.9,.25,1.2),filter .2s}
  .sc:hover,.sc:active{transform:translateY(-8px)}
  .front.bump{animation:bump .45s ease}
+ .front.sacudon{animation:sacudon .5s ease}
+ @keyframes sacudon{20%{transform:rotate(-2deg)}40%{transform:rotate(2deg) scale(.98)}60%{transform:rotate(-1.2deg)}80%{transform:rotate(.6deg)}100%{transform:none}}
+ .resta{position:absolute;right:18px;top:14px;font-weight:800;font-size:1.25rem;color:var(--neg);pointer-events:none;animation:resta 1.1s ease-out forwards}
+ @keyframes resta{0%{opacity:0;transform:translateY(10px)}20%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(.97)}70%{transform:scale(1.015)}100%{transform:scale(1)}}
  .bigbtn,.btn,.plus,.chip{transition:transform .15s ease,box-shadow .2s}
  .bigbtn:active,.btn:active,.plus:active,.chip:active{transform:scale(.96)}
@@ -647,7 +651,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go)
 $('#nav-plus').onclick=()=>{
   if(!S.ciclo){go('home');toast('Primero cargá tu sueldo para armar los sobres.');return;}
   if(sim(S.ciclo).despues){go('home');toast('Se terminó el mes. Tocá "Cobré" para arrancar el nuevo.');return;}
-  abrirGasto();
+  expandirYAbrir($('#nav-plus'),()=>abrirGasto());
 };
 
 let introHecho=false,lastView='',counts={};
@@ -808,6 +812,40 @@ function ligarFecha(id,campo){
   chips.forEach(b=>b.onclick=()=>{inp.value=b.dataset.f;pintar();});
   inp.onchange=pintar;pintar();
 }
+/* Al anotar: el formulario se achica y vuela a la tarjeta de hoy (o arriba si no está),
+   la tarjeta se sacude y, si baja lo de hoy, sube el monto en rojo mientras el número cuenta */
+function cerrarAnotado(monto,bajaHoy){
+  const pn=$('#panel'),dest=view==='home'&&document.querySelector('.front');
+  const listo=()=>{
+    closeSheet();pn.style.cssText='';render();
+    const fr=document.querySelector('.front');if(!fr||monto==null)return;
+    if(reduceMotion()){fr.classList.add('bump');return;}
+    fr.classList.remove('sacudon');void fr.offsetWidth;fr.classList.add('sacudon');
+    if(bajaHoy){const r=document.createElement('span');r.className='resta';r.textContent='−'+fmt(monto).replace('−','');fr.appendChild(r);setTimeout(()=>r.remove(),1200);}
+  };
+  if(monto==null||reduceMotion()||!pn.animate)return listo();
+  const a=pn.getBoundingClientRect(),b=dest?dest.getBoundingClientRect():{left:innerWidth/2-20,top:40,width:40,height:40};
+  const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
+  $('#sheet').animate([{background:'rgba(5,10,20,.6)'},{background:'rgba(5,10,20,0)'}],{duration:450,fill:'forwards'});
+  const an=pn.animate([{transform:'none',borderRadius:'24px 24px 0 0',opacity:1},
+    {transform:`translate(${dx*.55}px,${dy*.55}px) scale(.25)`,borderRadius:'50%',opacity:1,offset:.6},
+    {transform:`translate(${dx}px,${dy}px) scale(.04)`,borderRadius:'50%',opacity:0}],{duration:450,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
+  an.onfinish=()=>{$('#sheet').getAnimations().forEach(x=>x.cancel());an.cancel();listo();};
+}
+/* Al tocar el +: un círculo crece desde el botón hasta cubrir la pantalla y se abre en el formulario */
+function expandirYAbrir(btn,abrir){
+  if(reduceMotion()||!document.body.animate)return abrir();
+  const r=btn.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const lejos=Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy));
+  const c=document.createElement('div');
+  c.style.cssText=`position:fixed;left:${cx-30}px;top:${cy-30}px;width:60px;height:60px;border-radius:50%;background:var(--surface);z-index:11;pointer-events:none`;
+  document.body.appendChild(c);
+  const fondo=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+  c.animate([{transform:'scale(.9)',background:'#fff'},{transform:`scale(${lejos/30+.2})`,background:fondo}],{duration:380,easing:'cubic-bezier(.5,0,.3,1)',fill:'forwards'}).onfinish=()=>{
+    abrir();
+    c.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'}).onfinish=()=>c.remove();
+  };
+}
 function abrirGasto(pre,editId){
   const ed=editId!=null?S.ciclo.gastos.find(g=>String(g.id)===String(editId)):null;
   let cat=ed&&ed.cat||'super',medio=ed?ed.medio:(pre==='tarjeta'||pre==='luz'?'tarjeta':'plata'),tipo=ed&&ed.tipo||(pre==='luz'?'luz':'luz'),imp=!!(ed&&ed.imp);
@@ -852,7 +890,9 @@ function abrirGasto(pre,editId){
     if(medio==='plata'){g.cat=cat;if(imp){g.imp=true;g.nota=$('#g-nota').value.trim();}}
     else g.tipo=tipo;
     if(!ed)S.ciclo.gastos.push(g);
-    save();closeSheet();render();const fr=document.querySelector('.front');if(fr){fr.classList.add('bump');}
+    save();
+    const bajaHoy=!ed&&medio==='plata'&&!imp&&f===iso(hoyD());
+    cerrarAnotado(ed?null:m,bajaHoy);
     if(ed){toast('Cambios guardados');return;}
     if(medio==='plata'&&!imp){const r=sim(S.ciclo);if(r.hoyRec&&f===iso(hoyD())){const q=r.hoyRec.permitido-r.hoyRec.gasto;toast(q>=0?'Anotado. Te quedan '+fmt(q)+' para hoy.':'Anotado. Hoy te pasaste '+fmt(-q)+'.');return;}}
     toast(medio==='tarjeta'&&tipo==='luz'?'Luz cargada. Listo por este mes.':'Anotado');
