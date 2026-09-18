@@ -369,7 +369,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast(
 /* Completar con los datos del proyecto de Supabase. Vacío = la app funciona
    solo en este dispositivo, como antes. La clave anon es pública a propósito:
    lo que protege los datos es que la tabla solo se toca por las funciones. */
-const NUBE={url:'',key:''};
+const NUBE={url:'https://mzlxxratdfcczymrgwiy.supabase.co',key:'sb_publishable_KblocqGIy84BDRJAxmEWWw_0EMXbANJ'};
 const SYNC_KEY='mi-plata-sync-v1';
 let sync={codigo:null,ultima:null};
 try{sync=Object.assign(sync,JSON.parse(localStorage.getItem(SYNC_KEY)||'null'));}catch(e){}
