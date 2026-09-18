@@ -212,6 +212,8 @@ nav button[aria-current="page"]{color:var(--ink)}
  .sc:hover,.sc:active{transform:translateY(-8px)}
  .front.bump{animation:bump .45s ease}
  .front.sacudon{animation:sacudon .5s ease}
+ .billetito{position:fixed;z-index:12;width:70px;height:36px;border-radius:7px;background:linear-gradient(135deg,var(--s1),var(--s1d));border:2px solid rgba(255,255,255,.4);color:#fff;font-weight:800;font-size:1.15rem;display:grid;place-items:center;box-shadow:0 8px 18px rgba(0,0,0,.35);pointer-events:none}
+ .billetito:before{content:"";position:absolute;inset:4px;border:1px dashed rgba(255,255,255,.45);border-radius:4px}
  @keyframes sacudon{20%{transform:rotate(-2deg)}40%{transform:rotate(2deg) scale(.98)}60%{transform:rotate(-1.2deg)}80%{transform:rotate(.6deg)}100%{transform:none}}
  .resta{position:absolute;right:16px;top:46px;z-index:2;background:var(--neg);color:#fff;font-weight:800;font-size:1.4rem;letter-spacing:-.02em;padding:5px 14px;border-radius:99px;box-shadow:0 6px 16px rgba(224,65,58,.45);pointer-events:none;animation:resta 2.2s ease-out forwards}
  @keyframes resta{0%{opacity:0;transform:scale(.5)}10%{opacity:1;transform:scale(1.12)}18%{transform:scale(1)}80%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-18px)}}
@@ -855,28 +857,57 @@ function ligarFecha(id,campo){
   chips.forEach(b=>b.onclick=()=>{inp.value=b.dataset.f;pintar();});
   inp.onchange=pintar;pintar();
 }
-/* Al anotar: el formulario se achica y vuela a la tarjeta de hoy (o arriba si no está),
-   la tarjeta se sacude y, si baja lo de hoy, sube el monto en rojo mientras el número cuenta */
+/* Al anotar: el formulario se achica volando hacia la tarjeta de hoy, a mitad de camino
+   se convierte en un billetito que choca contra la tarjeta; con el golpe la tarjeta se
+   sacude y, si baja lo de hoy, aparece el monto en rojo mientras el número cuenta */
 function cerrarAnotado(monto,bajaHoy){
-  const pn=$('#panel'),dest=view==='home'&&document.querySelector('.front');
+  const pn=$('#panel'),sh=$('#sheet'),dest=view==='home'&&document.querySelector('.front');
   const listo=()=>{
-    closeSheet();pn.style.cssText='';render();
+    closeSheet();sh.getAnimations().forEach(x=>x.cancel());pn.getAnimations().forEach(x=>x.cancel());pn.style.cssText='';render();
     const fr=document.querySelector('.front');if(!fr||monto==null)return;
     if(reduceMotion()){fr.classList.add('bump');return;}
     fr.classList.remove('sacudon');void fr.offsetWidth;fr.classList.add('sacudon');
     if(bajaHoy){const r=document.createElement('span');r.className='resta';r.textContent='−'+fmt(monto).replace('−','');fr.appendChild(r);setTimeout(()=>r.remove(),2300);}
   };
   if(monto==null||reduceMotion()||!pn.animate)return listo();
+  /* medir la tarjeta como va a quedar con la pantalla ya en su tamaño normal */
   const H=document.documentElement,R=$('#root');
   if(H.classList.contains('atras')){R.style.transition='none';H.classList.remove('atras');}
-  const a=pn.getBoundingClientRect(),b=dest?dest.getBoundingClientRect():{left:innerWidth/2-20,top:40,width:40,height:40};
+  const a=pn.getBoundingClientRect(),b=dest?dest.getBoundingClientRect():{left:innerWidth/2-20,top:20,width:40,height:40};
   if(R.style.transition){H.classList.add('atras');void R.offsetWidth;R.style.transition='';H.classList.remove('atras');}
-  const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
-  $('#sheet').animate([{background:'rgba(5,10,20,.6)'},{background:'rgba(5,10,20,0)'}],{duration:450,fill:'forwards'});
-  const an=pn.animate([{transform:'none',borderRadius:'24px 24px 0 0',opacity:1},
-    {transform:`translate(${dx*.55}px,${dy*.55}px) scale(.25)`,borderRadius:'50%',opacity:1,offset:.6},
-    {transform:`translate(${dx}px,${dy}px) scale(.04)`,borderRadius:'50%',opacity:0}],{duration:450,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
-  an.onfinish=()=>{$('#sheet').getAnimations().forEach(x=>x.cancel());an.cancel();listo();};
+  const ax=a.left+a.width/2,ay=a.top+a.height/2,ix=b.left+b.width/2,iy=b.top+b.height*(dest?.45:.5);
+  const mx=ax+(ix-ax)*.5,my=ay+(iy-ay)*.5;
+  sh.animate([{background:'rgba(5,10,20,.6)'},{background:'rgba(5,10,20,0)'}],{duration:300,fill:'forwards'});
+  pn.animate([{transform:'none',borderRadius:'24px 24px 0 0',opacity:1},
+    {transform:`translate(${mx-ax}px,${my-ay}px) scale(.14)`,borderRadius:'40px',opacity:1,offset:.85},
+    {transform:`translate(${mx-ax}px,${my-ay}px) scale(.12)`,borderRadius:'40px',opacity:0}],{duration:300,easing:'cubic-bezier(.5,0,.5,1)',fill:'forwards'});
+  const bi=document.createElement('div');bi.className='billetito';bi.textContent='$';
+  bi.style.left=(mx-35)+'px';bi.style.top=(my-18)+'px';
+  setTimeout(()=>{
+    document.body.appendChild(bi);
+    const vuelo=bi.animate([{transform:'scale(.5) rotate(-18deg)',opacity:0},{transform:'scale(1) rotate(-12deg)',opacity:1,offset:.25},
+      {transform:`translate(${ix-mx}px,${iy-my}px) rotate(0)`,opacity:1}],{duration:300,easing:'cubic-bezier(.55,0,.9,.5)',fill:'forwards'});
+    vuelo.onfinish=()=>{
+      listo();
+      bi.animate([{transform:`translate(${ix-mx}px,${iy-my}px) scale(1)`,opacity:1},
+        {transform:`translate(${ix-mx}px,${iy-my}px) scale(1.3,.65)`,opacity:.9,offset:.4},
+        {transform:`translate(${ix-mx}px,${iy-my+4}px) scale(1.5,.3)`,opacity:0}],{duration:180,easing:'ease-out',fill:'forwards'}).onfinish=()=>bi.remove();
+    };
+  },240);
+}
+/* Cerrar sin anotar (Cancelar, tocar afuera, Escape): lo mismo que al abrir, al revés.
+   El formulario baja y la pantalla vuelve hacia adelante. */
+let cerrando=false;
+function cerrarHoja(){
+  const sh=$('#sheet'),pn=$('#panel');
+  if(!sh.classList.contains('open')||cerrando)return;
+  document.documentElement.classList.remove('atras');
+  if(reduceMotion()||!pn.animate)return closeSheet();
+  cerrando=true;
+  sh.animate([{background:'rgba(5,10,20,.6)'},{background:'rgba(5,10,20,0)'}],{duration:300,fill:'forwards'});
+  pn.animate([{transform:'none'},{transform:'translateY(100%)'}],{duration:300,easing:'cubic-bezier(.4,0,.9,.6)',fill:'forwards'}).onfinish=()=>{
+    closeSheet();sh.getAnimations().forEach(x=>x.cancel());pn.getAnimations().forEach(x=>x.cancel());cerrando=false;
+  };
 }
 /* Al tocar el +: la pantalla se achica hacia atrás y se oscurece, y el formulario
    sube desde abajo. closeSheet la devuelve a su lugar. */
@@ -918,7 +949,7 @@ function abrirGasto(pre,editId){
   document.querySelectorAll('#g-tipo .chip').forEach(b=>b.onclick=()=>{tipo=b.dataset.v;paint();});
   ligarFecha('g-fecha','#g-f');
   $('#g-imp').onchange=e=>{imp=e.target.checked;paint();};
-  $('#g-no').onclick=closeSheet;
+  $('#g-no').onclick=cerrarHoja;
   const gd=$('#g-del');if(gd)gd.onclick=async()=>{
     if(!await ask('¿Borrar este gasto?','Se descuenta de tus sobres y no se puede deshacer.','Borrar gasto',true))return;
     S.ciclo.gastos=S.ciclo.gastos.filter(g=>g!==ed);save();render();toast('Gasto borrado');
@@ -1439,8 +1470,8 @@ function ask(titulo,texto,ok,peligro,no='Cancelar'){
 }
 function openSheet(html){$('#panel').style.animation='';$('#panel').innerHTML=html;$('#sheet').classList.add('open');}
 function closeSheet(){$('#sheet').classList.remove('open');document.documentElement.classList.remove('atras');}
-$('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')cerrarHoja();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarHoja();});
 document.addEventListener('input',e=>{const el=e.target;if(!el.matches||!el.matches('input[data-money]'))return;const d=el.value.replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,10);el.value=d?Number(d).toLocaleString('es-AR'):'';});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();bajar();}});
 window.addEventListener('online',()=>{sucio?subir():bajar();});
