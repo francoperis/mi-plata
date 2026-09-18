@@ -1229,8 +1229,8 @@ async function pedirCr(clave,url,vida){
 /* Dólar cripto (el de los exchanges argentinos), guardado una hora */
 async function dolarCripto(){
   try{const d=JSON.parse(localStorage.getItem(DOLAR_KEY)||'null');if(d&&Date.now()-d.ts<36e5)return d.v;}catch(e){}
-  const v=Number((await pedirCr('dolar','https://dolarapi.com/v1/dolares/cripto',36e5)).venta);
-  if(!v)throw new Error('sin dólar');
+  let v=0;try{v=Number((await pedirCr('dolar','https://dolarapi.com/v1/dolares/cripto',36e5)).venta);}catch(e){}
+  if(!v)throw new Error('dolar');
   try{localStorage.setItem(DOLAR_KEY,JSON.stringify({v,ts:Date.now()}));}catch(e){}
   return v;
 }
@@ -1267,15 +1267,40 @@ async function pintarGrafico(box,id){
   box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{monedaCr=b.dataset.m;try{localStorage.setItem(MONEDA_KEY,monedaCr);}catch(e){}pintarGrafico(box,id);});
   const cuerpo=box.querySelector('.gr-cuerpo'),rango=rangoCr,mon=monedaCr;
   try{
-    const [d,dol]=await Promise.all([
-      pedirCr('g:'+id+':'+rango,`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${rango}`,3e5),
-      mon==='ars'?dolarCripto():Promise.resolve(1)]);
+    const [pr,dol]=await Promise.all([preciosCr(id,rango),mon==='ars'?dolarCripto():Promise.resolve(1)]);
     if(!cuerpo.isConnected)return;
-    let p=d.prices||[];const paso=Math.max(1,Math.ceil(p.length/140));
-    p=p.filter((x,i)=>i%paso===0||i===p.length-1).map(x=>[x[0],x[1]*dol]);
+    const paso=Math.max(1,Math.ceil(pr.length/140));
+    const p=pr.filter((x,i)=>i%paso===0||i===pr.length-1).map(x=>[x[0],x[1]*dol]);
     if(p.length<2)throw new Error('sin datos');
     dibujarGrafico(cuerpo,p,mon,dol,rango);
-  }catch(e){if(cuerpo.isConnected)cuerpo.innerHTML=`<p class="cr-vacio">No pudimos traer el gráfico ahora${mon==='ars'?' (o la cotización del dólar)':''}. Probá de nuevo en un rato.</p>`;}
+  }catch(e){
+    if(!cuerpo.isConnected)return;
+    cuerpo.innerHTML=`<p class="cr-vacio">${mon==='ars'&&e.message==='dolar'?'No pudimos traer la cotización del dólar cripto.':'CoinGecko está recibiendo muchos pedidos y nos pidió esperar un poco.'} Probá de nuevo en un minuto.</p><button class="btn" style="margin-top:6px">Reintentar</button>`;
+    cuerpo.querySelector('button').onclick=()=>pintarGrafico(box,id);
+  }
+}
+/* Precios en dólares para el gráfico, como [[fecha, precio], ...]
+   - 24 h y 7 días: salen de la curva que ya vino con la lista (sin pedidos extra)
+   - 30 días y 1 año: CoinGecko y, si está limitando, Binance. Se guardan un rato. */
+async function preciosCr(id,rango){
+  const cache=leerCacheCripto(),c=cache&&cache.coins&&cache.coins.find(x=>x.id===id);
+  if((rango==='7'||rango==='1')&&c&&c.spark&&c.spark.length>24){
+    const fin=cache.ts||Date.now(),n=c.spark.length,paso=7*864e5/(n-1);
+    const todo=c.spark.map((v,i)=>[fin-(n-1-i)*paso,v]);
+    return rango==='1'?todo.slice(-Math.round(864e5/paso)-1):todo;
+  }
+  const clave='mi-plata-graf-'+id+'-'+rango,vida=rango==='365'?6*36e5:36e5;
+  try{const g=JSON.parse(localStorage.getItem(clave)||'null');if(g&&Date.now()-g.ts<vida)return g.p;}catch(e){}
+  let p=null;
+  try{p=(await pedirCr('g:'+id+':'+rango,`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${rango}`,3e5)).prices;}catch(e){}
+  if((!p||p.length<2)&&c&&c.symbol){
+    try{const k=await pedirCr('b:'+c.symbol+':'+rango,`https://api.binance.com/api/v3/klines?symbol=${c.symbol.toUpperCase()}USDT&interval=${rango==='365'?'1d':'4h'}&limit=${rango==='365'?365:180}`,3e5);
+      if(Array.isArray(k))p=k.map(x=>[x[0],Number(x[4])]);}catch(e){}
+  }
+  if(!p||p.length<2)throw new Error('precios');
+  const chico=p.map(x=>[x[0],Number(x[1].toPrecision(6))]);
+  try{localStorage.setItem(clave,JSON.stringify({ts:Date.now(),p:chico.filter((x,i)=>i%Math.max(1,Math.ceil(chico.length/200))===0||i===chico.length-1)}));}catch(e){}
+  return chico;
 }
 function dibujarGrafico(el,p,mon,dol,rango){
   const W=Math.max(240,Math.round(el.clientWidth||300)),H=150,pad=10;
@@ -1302,7 +1327,7 @@ function dibujarGrafico(el,p,mon,dol,rango){
     <span class="gr-et" style="bottom:0;${en(vs.indexOf(mn))}">mín ${f(mn)}</span>
     <div class="gr-tip" hidden></div>
   </div>
-  <p class="cr-src">Precios de CoinGecko${mon==='ars'?` · en pesos al dólar cripto de hoy (${ars(dol)}, de DolarAPI)`:''}</p>`;
+  <p class="cr-src">Precios de CoinGecko${rango==='30'||rango==='365'?' o Binance':''}${mon==='ars'?` · en pesos al dólar cripto de hoy (${ars(dol)}, de DolarAPI)`:''}</p>`;
   const svg=el.querySelector('.gr-svg'),cruz=el.querySelector('.gr-cruz'),pt=el.querySelector('.gr-punto'),tip=el.querySelector('.gr-tip');
   const mover=e=>{
     const r=svg.getBoundingClientRect(),i=Math.round(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*(p.length-1)),x=X(i);
@@ -1316,11 +1341,12 @@ function dibujarGrafico(el,p,mon,dol,rango){
 async function actualizarCripto(manual){
   if(manual){guardarCacheCripto(Object.assign(leerCacheCripto()||{},{buscando:true}));pintarListaCripto();}
   try{
-    const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h,7d,30d');
+    const res=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=24h,7d,30d');
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
     const coins=data.map(c=>({id:c.id,name:c.name,symbol:c.symbol,image:c.image,precio:c.current_price,
-      d24:c.price_change_percentage_24h_in_currency,d7:c.price_change_percentage_7d_in_currency,d30:c.price_change_percentage_30d_in_currency}));
+      d24:c.price_change_percentage_24h_in_currency,d7:c.price_change_percentage_7d_in_currency,d30:c.price_change_percentage_30d_in_currency,
+      spark:((c.sparkline_in_7d&&c.sparkline_in_7d.price)||[]).map(v=>Number(v.toPrecision(6)))}));
     guardarCacheCripto({ts:Date.now(),coins});
   }catch(e){
     const prev=leerCacheCripto();
@@ -1337,7 +1363,7 @@ function avisoCriptoHome(){
 function chequeoCriptoInicial(){
   const cache=leerCacheCripto();
   avisoCriptoHome();
-  const vieja=cache&&cache.coins&&cache.coins[0]&&!('d7' in cache.coins[0]);
+  const vieja=cache&&cache.coins&&cache.coins[0]&&!('spark' in cache.coins[0]);
   if(!cache||!cache.ts||vieja||Date.now()-cache.ts>CRYPTO_TTL)actualizarCripto(false);
 }
 
